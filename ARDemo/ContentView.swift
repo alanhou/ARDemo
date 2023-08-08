@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import ARKit
+import Combine
 
 struct ContentView : View {
     var body: some View {
@@ -22,9 +23,9 @@ struct ARViewContainer: UIViewRepresentable {
         let arView = ARView(frame: .zero)
         
         let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal,.vertical]
+        config.planeDetection = .horizontal
         arView.session.run(config, options: [])
-        arView.debugOptions = [.showAnchorGeometry,.showAnchorOrigins,.showFeaturePoints]
+        arView.session.delegate = arView
         arView.createPlane()
         
         return arView
@@ -35,20 +36,49 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
+var planeMesh = MeshResource.generatePlane(width: 0.15, depth: 0.15)
+var planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
+var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
+
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didFailWithError error: Error) {
-        guard let arError = error as? ARError else {return}
-        let isRecoverable = (arError.code == .worldTrackingFailed)
-        if isRecoverable{
-            print("由于运动跟踪失败的错误可恢复")
-        }
-        else{
-            print("错误不可恢复，失败Code =\(arError.code),错误描述：\(arError.localizedDescription)")
+    func createPlane(){
+        let planeAnchor = AnchorEntity(plane: .horizontal)
+        do{
+//            planeMaterial.color = try .init(tint: UIColor.yellow.withAlphaComponent(0.9999), texture: .init(.load(named: "Surface_DIFFUSE")))
+            planeMaterial.baseColor = try .texture(.load(named: "Surface_DIFFUSE"))
+            planeMaterial.tintColor = UIColor.yellow.withAlphaComponent(0.9999)
+            planeAnchor.addChild(planeEntity)
+            self.scene.addAnchor(planeAnchor)
+        }catch{
+            print("找不到文件")
         }
     }
     
-    func createPlane(){
-        
+    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        guard let pAnchor = anchors[0] as? ARPlaneAnchor else {
+            return
+        }
+        DispatchQueue.main.async {
+            planeEntity.model?.mesh = MeshResource.generatePlane(
+             width: pAnchor.extent.x,
+             depth: pAnchor.extent.z
+           )
+            planeEntity.setTransformMatrix(pAnchor.transform, relativeTo: nil)
+        }
+    }
+    
+    public func session(session: ARSession, didUpdate anchors: [ARAnchor]) {
+        guard let pAnchor = anchors[0] as? ARPlaneAnchor else {
+            return
+        }
+        DispatchQueue.main.async {
+//            planeEntity.model?.mesh = MeshResource.generatePlane(width: pAnchor.planeExtent.width, depth: pAnchor.planeExtent.rotationOnYAxis)
+            planeEntity.model?.mesh = MeshResource.generatePlane(
+             width: pAnchor.extent.x,
+             depth: pAnchor.extent.z
+           )
+            planeEntity.setTransformMatrix(pAnchor.transform, relativeTo: nil)
+        }
     }
 }
 
