@@ -21,13 +21,11 @@ struct ARViewContainer: UIViewRepresentable {
         
         let arView = ARView(frame: .zero)
         
-        
         let config = ARWorldTrackingConfiguration()
-        if ARWorldTrackingConfiguration.isSupported {
-            config.planeDetection = .horizontal
-            arView.session.run(config, options: [])
-        }
-        
+        config.planeDetection = .horizontal
+        arView.session.run(config, options: [])
+        arView.session.delegate = arView
+        arView.createPlane()
         
         return arView
         
@@ -36,6 +34,24 @@ struct ARViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: ARView, context: Context) {}
     
 }
+
+extension ARView: ARSessionDelegate{
+    public func session(_ session: ARSession, didFailWithError error: Error) {
+        guard let arError = error as? ARError else {return}
+        let isRecoverable = (arError.code == .worldTrackingFailed)
+        if isRecoverable{
+            print("由于运动跟踪失败的错误可恢复")
+        }
+        else{
+            print("错误不可恢复，失败Code =\(arError.code),错误描述：\(arError.localizedDescription)")
+        }
+    }
+    
+    func createPlane(){
+        
+    }
+}
+
 
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {
