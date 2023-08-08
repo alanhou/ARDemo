@@ -22,9 +22,9 @@ struct ARViewContainer: UIViewRepresentable {
         let arView = ARView(frame: .zero)
         
         let config = ARWorldTrackingConfiguration()
-        config.planeDetection = .horizontal
+        config.planeDetection = [.horizontal,.vertical]
         arView.session.run(config, options: [])
-        arView.session.delegate = arView
+        arView.debugOptions = [.showAnchorGeometry,.showAnchorOrigins,.showFeaturePoints]
         arView.createPlane()
         
         return arView
