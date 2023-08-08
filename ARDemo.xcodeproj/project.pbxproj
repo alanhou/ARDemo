@@ -21,6 +21,7 @@
 		E7789FCD2A81F04F00770DC2 /* Experience.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = Experience.rcproject; sourceTree = "<group>"; };
 		E7789FCF2A81F05100770DC2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E7789FD22A81F05100770DC2 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E7789FD92A82260400770DC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +54,7 @@
 		E7789FC82A81F04F00770DC2 /* ARDemo */ = {
 			isa = PBXGroup;
 			children = (
+				E7789FD92A82260400770DC2 /* Info.plist */,
 				E7789FC92A81F04F00770DC2 /* AppDelegate.swift */,
 				E7789FCB2A81F04F00770DC2 /* ContentView.swift */,
 				E7789FCD2A81F04F00770DC2 /* Experience.rcproject */,
@@ -274,7 +276,8 @@
 				DEVELOPMENT_TEAM = PWBRSRFHZC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_FILE = ARDemo/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "AR应用需要开启摄像头";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arkit;
@@ -305,7 +308,8 @@
 				DEVELOPMENT_TEAM = PWBRSRFHZC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_FILE = ARDemo/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "AR应用需要开启摄像头";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arkit;
