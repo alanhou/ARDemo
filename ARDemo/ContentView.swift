@@ -38,47 +38,28 @@ struct ARViewContainer: UIViewRepresentable {
 
 var planeMesh = MeshResource.generatePlane(width: 0.15, depth: 0.15)
 var planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
-var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
+var planeEntity : ModelEntity? = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
 
 extension ARView: ARSessionDelegate{
     func createPlane(){
         let planeAnchor = AnchorEntity(plane: .horizontal)
         do{
-//            planeMaterial.color = try .init(tint: UIColor.yellow.withAlphaComponent(0.9999), texture: .init(.load(named: "Surface_DIFFUSE")))
-            planeMaterial.baseColor = try .texture(.load(named: "Surface_DIFFUSE"))
-            planeMaterial.tintColor = UIColor.yellow.withAlphaComponent(0.9999)
-            planeAnchor.addChild(planeEntity)
+            planeMaterial.color = try .init(tint: UIColor.yellow.withAlphaComponent(0.9999), texture: .init(.load(named: "AR_Placement_Indicator")))
+            planeAnchor.addChild(planeEntity!)
             self.scene.addAnchor(planeAnchor)
         }catch{
             print("找不到文件")
         }
     }
     
-    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        guard let pAnchor = anchors[0] as? ARPlaneAnchor else {
+    public func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        guard let raycastQuery = self.makeRaycastQuery(from: self.center, allowing: .estimatedPlane, alignment: .horizontal) else{
             return
         }
-        DispatchQueue.main.async {
-            planeEntity.model?.mesh = MeshResource.generatePlane(
-             width: pAnchor.extent.x,
-             depth: pAnchor.extent.z
-           )
-            planeEntity.setTransformMatrix(pAnchor.transform, relativeTo: nil)
-        }
-    }
-    
-    public func session(session: ARSession, didUpdate anchors: [ARAnchor]) {
-        guard let pAnchor = anchors[0] as? ARPlaneAnchor else {
+        guard let result = self.session.raycast(raycastQuery).first else {
             return
         }
-        DispatchQueue.main.async {
-//            planeEntity.model?.mesh = MeshResource.generatePlane(width: pAnchor.planeExtent.width, depth: pAnchor.planeExtent.rotationOnYAxis)
-            planeEntity.model?.mesh = MeshResource.generatePlane(
-             width: pAnchor.extent.x,
-             depth: pAnchor.extent.z
-           )
-            planeEntity.setTransformMatrix(pAnchor.transform, relativeTo: nil)
-        }
+        planeEntity!.setTransformMatrix(result.worldTransform, relativeTo: nil)
     }
 }
 
