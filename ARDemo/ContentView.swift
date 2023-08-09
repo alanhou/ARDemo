@@ -12,49 +12,24 @@ import Combine
 
 struct ContentView : View {
     var body: some View {
-        ARViewContainer()
-            .overlay(
-                VStack{
-                    Spacer()
-                    HStack{
-                        Button(action: {arView.snapShotAR()}) {
-                            Text("AR截图")
-                                .frame(width: 120, height: 40)
-                                .font(.body)
-                                .foregroundColor(.black)
-                                .background(Color.white)
-                                .opacity(0.6)
-                        }
-                        .offset(y: -30)
-                        .padding(.bottom, 30)
-                        Button(action: {arView.snapShotCamera()}) {
-                            Text("摄像机截图")
-                            .frame(width:120,height:40)
-                            .font(.body)
-                            .foregroundColor(.black)
-                            .background(Color.white)
-                            .opacity(0.6)
-                        }
-                        .offset(y: -30)
-                        .padding(.bottom, 30)
-                    }
-                }
-            ).edgesIgnoringSafeArea(.all)
+        ARViewContainer().edgesIgnoringSafeArea(.all)
     }
 }
 
-var arView : ARView!
+var arView: ARView!
 
 struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         
         arView = ARView(frame: .zero)
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = .horizontal
-        arView.session.run(config, options: [])
+        guard ARGeoTrackingConfiguration.isSupported else { return arView }
+        ARGeoTrackingConfiguration.checkAvailability{ (available, error) in
+            guard available else { return }
+            arView.session.run(ARGeoTrackingConfiguration())
+        }
+        
         arView.session.delegate = arView
-        arView.createPlane()
         return arView
     }
     
@@ -64,55 +39,28 @@ struct ARViewContainer: UIViewRepresentable {
 
 
 extension ARView: ARSessionDelegate{
-    func createPlane() {
-        let planeAnchor = AnchorEntity(plane: .horizontal)
-        do{
-            let cubeMesh = MeshResource.generateBox(size: 0.2)
-            var cubeMaterial = SimpleMaterial(color: .white, isMetallic: false)
-            cubeMaterial.color = try .init(texture: .init(.load(named: "Box_Texture")))
-            let cubeEntity = ModelEntity(mesh: cubeMesh, materials: [cubeMaterial])
-            cubeEntity.generateCollisionShapes(recursive: false)
-            planeAnchor.addChild(cubeEntity)
-            self.scene.addAnchor(planeAnchor)
-            self.installGestures(.all, for: cubeEntity)
-        } catch {
-            print("找不到文件")
-        }
-    }
-    
-    func snapShotAR(){
-        //方法一
-         arView.snapshot(saveToHDR: false){(image) in
-             UIImageWriteToSavedPhotosAlbum(image!, self, #selector(self.imageSaveHandler(image:didFinishSavingWithError:contextInfo:)), nil)
-         }
-        
-//        方法二
-//        UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.isOpaque, 0)
-//        self.drawHierarchy(in: self.bounds, afterScreenUpdates: true)
-//        let uiImage = UIGraphicsGetImageFromCurrentImageContext()
-//        UIGraphicsEndImageContext()
-//        UIImageWriteToSavedPhotosAlbum(uiImage!, self, #selector(imageSaveHandler(image:didFinishSavingWithError:contextInfo:)), nil)
-        
-    }
-    
-    func snapShotCamera(){
-        guard let pixelBuffer = arView.session.currentFrame?.capturedImage else {
-            return
-        }
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer),
-        context = CIContext(options: nil),
-        cgImage = context.createCGImage(ciImage, from: ciImage.extent),
-        uiImage = UIImage(cgImage: cgImage!, scale: 1, orientation: .right)
-        UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(imageSaveHandler(image:didFinishSavingWithError:contextInfo:)), nil)
-    }
-    
-    @objc func imageSaveHandler(image:UIImage,didFinishSavingWithError error:NSError?,contextInfo:AnyObject) {
-        if error != nil {
-            print("保存图片出错")
+    public func session(_ session: ARSession, didChange geoTrackingStatus: ARGeoTrackingStatus) {
+        var text = geoTrackingStatus.state.rawValue.description
+        if geoTrackingStatus.state == .localized {
+            text += "Accuracy: \(geoTrackingStatus.accuracy.rawValue.description)"
         } else {
-            print("保存图片成功")
+            switch geoTrackingStatus.stateReason {
+            case .none:
+                break
+            case .worldTrackingUnstable:
+                let arTrackingState = session.currentFrame?.camera.trackingState
+                if case let .limited(arTrackingStateReason) = arTrackingState{
+                    text += "\n\(geoTrackingStatus.stateReason.rawValue.description): \(arTrackingStateReason)."
+                } else {
+                    fallthrough
+                }
+            default:
+                text += "\n\(geoTrackingStatus.stateReason.rawValue.description)."
+            }
         }
+        print(text)
     }
+    
 }
 
 #if DEBUG
