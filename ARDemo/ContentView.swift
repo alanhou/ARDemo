@@ -25,8 +25,7 @@ struct ARViewContainer: UIViewRepresentable {
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = .horizontal
         arView.session.run(config, options: [])
-        arView.session.delegate = arView
-        arView.createPlane()
+        arView.addCoaching()
         
         return arView
         
@@ -36,58 +35,32 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var cubeEntity: ModelEntity?
-var gestureStartLocation: SIMD3<Float>?
-
-extension ARView: ARSessionDelegate{
-    func createPlane(){
+extension ARView: ARCoachingOverlayViewDelegate {
+    func addCoaching() {
+        let coachingOverlay = ARCoachingOverlayView()
+        coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.addSubview(coachingOverlay)
+        coachingOverlay.goal = .horizontalPlane
+        coachingOverlay.session = self.session
+        coachingOverlay.delegate = self
+    }
+    
+    public func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
+        self.placeBox()
+    }
+    
+    @objc func placeBox(){
+        let boxMesh = MeshResource.generateBox(size: 0.15)
+        var boxMaterial = SimpleMaterial(color: .white, isMetallic: false)
         let planeAnchor = AnchorEntity(plane: .horizontal)
-        do{
-            let cubeMesh = MeshResource.generateBox(size: 0.1)
-            var cubeMaterial = SimpleMaterial(color: .white, isMetallic: false)
-            cubeMaterial.color = try .init(texture: .init(.load(named: "Box_Texture")))
-            cubeEntity = ModelEntity(mesh: cubeMesh, materials: [cubeMaterial])
-            cubeEntity!.generateCollisionShapes(recursive: false)
-            cubeEntity?.name = "this is a cube"
-            planeAnchor.addChild(cubeEntity!)
+        do {
+            boxMaterial.color = try .init(tint: UIColor.white.withAlphaComponent(0.9999), texture: .init(.load(named: "Box_Texture")))
+            let boxEntity = ModelEntity(mesh: boxMesh, materials: [boxMaterial])
+            planeAnchor.addChild(boxEntity)
             self.scene.addAnchor(planeAnchor)
-            self.installGestures(.all, for: cubeEntity!).forEach {
-                $0.addTarget(self, action: #selector(handleModelGesture))
-            }
-        }catch{
-            print("找不到文件")
+        } catch{
+          print("找不到文件")
         }
-    }
-    
-    @objc func handleModelGesture(_ sender:Any){
-        switch sender{
-        case let rotation as EntityRotationGestureRecognizer:
-            print("Rotation and name: \(rotation.entity!.name)")
-            rotation.isEnabled = false
-        case let translation as EntityTranslationGestureRecognizer:
-            print("translation and name \(translation.entity!.name)")
-            if translation.state == .ended || translation.state == .cancelled {
-                gestureStartLocation = nil
-                return
-            }
-            guard let gestureCurrentLocation = translation.entity?.transform.translation else {return}
-            guard let _ = gestureStartLocation else {
-                gestureStartLocation = gestureCurrentLocation
-                return
-            }
-            let delta = gestureStartLocation! - gestureCurrentLocation
-            let distance = ((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z)).squareRoot()
-            print("startLocation:\(String(describing: gestureStartLocation)),currentLocation:\(gestureCurrentLocation),the distance is \(distance)")
-        case let Scale as EntityScaleGestureRecognizer:
-            Scale.removeTarget(nil, action: nil)
-            Scale.addTarget(self, action: #selector(handleScaleGesture))
-        default:
-            break
-        }
-    }
-    
-    @objc func handleScaleGesture(_ sender:EntityScaleGestureRecognizer){
-        print("in scale")
     }
 }
 
