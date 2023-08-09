@@ -25,7 +25,7 @@ struct ARViewContainer: UIViewRepresentable {
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = .horizontal
         arView.session.run(config, options: [])
-        arView.addCoaching()
+        arView.setupGestures()
         
         return arView
         
@@ -35,35 +35,67 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-extension ARView: ARCoachingOverlayViewDelegate {
-    func addCoaching() {
-        let coachingOverlay = ARCoachingOverlayView()
-        coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.addSubview(coachingOverlay)
-        coachingOverlay.goal = .horizontalPlane
-        coachingOverlay.session = self.session
-        coachingOverlay.delegate = self
+extension ARView {
+    func setupGestures() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+        self.addGestureRecognizer(tap)
     }
     
-    public func coachingOverlayViewDidDeactivate(_ coachingOverlayView: ARCoachingOverlayView) {
-        self.placeBox()
-    }
-    
-    @objc func placeBox(){
-        let boxMesh = MeshResource.generateBox(size: 0.15)
-        var boxMaterial = SimpleMaterial(color: .white, isMetallic: false)
-        let planeAnchor = AnchorEntity(plane: .horizontal)
-        do {
-            boxMaterial.color = try .init(tint: UIColor.white.withAlphaComponent(0.9999), texture: .init(.load(named: "Box_Texture")))
-            let boxEntity = ModelEntity(mesh: boxMesh, materials: [boxMaterial])
-            planeAnchor.addChild(boxEntity)
-            self.scene.addAnchor(planeAnchor)
-        } catch{
-          print("找不到文件")
+    @objc func handleTap(_ sender: UITapGestureRecognizer? = nil){
+        guard let touchInView = sender?.location(in: self) else {
+            return
         }
+        guard let raycastQuery = self.makeRaycastQuery(from: touchInView, allowing: .existingPlaneInfinite, alignment: .horizontal) else {
+            return
+        }
+        guard let result = self.session.raycast(raycastQuery).first else { return }
+        let transformation = Transform(matrix: result.worldTransform)
+        let box = CustomEntity(color: .yellow, position: transformation.translation)
+        self.installGestures(.all, for: box)
+        box.addCollisions(scene: self.scene)
+        self.scene.addAnchor(box)
     }
 }
-
+//自定义实体类
+class CustomEntity: Entity, HasModel, HasAnchoring, HasCollision {
+    var subscribes: [Cancellable] = []
+    required init(color: UIColor) {
+        super.init()
+        self.components[CollisionComponent.self] = CollisionComponent(
+            shapes: [.generateBox(size: [0.1,0.1,0.1])],
+            mode: .default,
+            filter: CollisionFilter(group: CollisionGroup(rawValue: 1), mask: CollisionGroup(rawValue: 1))
+        )
+        self.components[ModelComponent.self] = ModelComponent(
+            mesh: .generateBox(size: [0.1,0.1,0.1]),
+            materials: [SimpleMaterial(color: color, isMetallic: false)]
+        )
+    }
+    
+    convenience init(color: UIColor, position: SIMD3<Float>) {
+        self.init(color: color)
+        self.position = position
+    }
+    
+    required init() {
+        fatalError("init()没有执行，初始化不成功")
+    }
+    
+    func addCollisions(scene: RealityKit.Scene) {
+        subscribes.append(scene.subscribe(to: CollisionEvents.Began.self, on: self) { event in
+            guard let box = event.entityA as? CustomEntity else {
+                return
+            }
+            box.model?.materials = [SimpleMaterial(color: .red, isMetallic: false)]
+        })
+        subscribes.append(scene.subscribe(to: CollisionEvents.Ended.self, on: self){ event in
+            guard let box = event.entityA as? CustomEntity else {
+                return
+            }
+            box.model?.materials = [SimpleMaterial(color: .yellow, isMetallic: false)]
+        })
+    }
+}
 
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {
