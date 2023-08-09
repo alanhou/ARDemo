@@ -16,20 +16,17 @@ struct ContentView : View {
     }
 }
 
-var arView: ARView!
-
 struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         
-        arView = ARView(frame: .zero)
-        guard ARGeoTrackingConfiguration.isSupported else { return arView }
-        ARGeoTrackingConfiguration.checkAvailability{ (available, error) in
-            guard available else { return }
-            arView.session.run(ARGeoTrackingConfiguration())
-        }
-        
+        let arView = ARView(frame: .zero)
+        let config = ARWorldTrackingConfiguration()
+        config.planeDetection = .horizontal
+        config.worldAlignment = .gravity
+        arView.session.run(config, options: [])
         arView.session.delegate = arView
+        arView.loadModel()
         return arView
     }
     
@@ -39,28 +36,31 @@ struct ARViewContainer: UIViewRepresentable {
 
 
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didChange geoTrackingStatus: ARGeoTrackingStatus) {
-        var text = geoTrackingStatus.state.rawValue.description
-        if geoTrackingStatus.state == .localized {
-            text += "Accuracy: \(geoTrackingStatus.accuracy.rawValue.description)"
-        } else {
-            switch geoTrackingStatus.stateReason {
-            case .none:
-                break
-            case .worldTrackingUnstable:
-                let arTrackingState = session.currentFrame?.camera.trackingState
-                if case let .limited(arTrackingStateReason) = arTrackingState{
-                    text += "\n\(geoTrackingStatus.stateReason.rawValue.description): \(arTrackingStateReason)."
-                } else {
-                    fallthrough
-                }
-            default:
-                text += "\n\(geoTrackingStatus.stateReason.rawValue.description)."
-            }
-        }
-        print(text)
+    func loadModel() {
+        let planeAnchor = AnchorEntity(plane: .horizontal)
+//        同步加载
+//        do {
+//            let usdzPath = "toy_drummer"
+//            let modelEntity = try ModelEntity.loadModel(named: usdzPath)
+//            print("加载成功！")
+//            planeAnchor.addChild(modelEntity)
+//        } catch {
+//            print("找不到文件")
+//        }
+//        异步加载
+        let usdzPath = "toy_drummer"
+        var cancellable: AnyCancellable? = nil
+        cancellable = ModelEntity.loadModelAsync(named: usdzPath)
+            .sink(receiveCompletion: { error in
+                print("发生错误：\(error)")
+                cancellable?.cancel()
+            }, receiveValue: { entity in
+                planeAnchor.addChild(entity)
+                cancellable?.cancel()
+            })
+        
+        self.scene.addAnchor(planeAnchor)
     }
-    
 }
 
 #if DEBUG
