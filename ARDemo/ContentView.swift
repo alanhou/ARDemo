@@ -21,9 +21,13 @@ struct ARViewContainer: UIViewRepresentable {
     func makeUIView(context: Context) -> ARView {
         
         let arView = ARView(frame: .zero)
-        
+        arView.automaticallyConfigureSession = false
         let config = ARWorldTrackingConfiguration()
+        if(ARWorldTrackingConfiguration.supportsSceneReconstruction(.meshWithClassification)){
+            config.sceneReconstruction = .meshWithClassification
+        }
         config.planeDetection = .horizontal
+//        arView.ARSCNDebugOptions.insert(.showSceneUnderstanding)
         arView.session.run(config, options: [])
         arView.setupGestures()
         
@@ -45,10 +49,15 @@ extension ARView {
         guard let touchInView = sender?.location(in: self) else {
             return
         }
+//        方法一
         guard let raycastQuery = self.makeRaycastQuery(from: touchInView, allowing: .existingPlaneInfinite, alignment: .horizontal) else {
             return
         }
         guard let result = self.session.raycast(raycastQuery).first else { return }
+//        方法二
+//        guard let result = self.raycast(from: touchInView, allowing: .estimatedPlane, alignment: .any).first else{
+//            return
+//        }
         let transformation = Transform(matrix: result.worldTransform)
         let box = CustomEntity(color: .yellow, position: transformation.translation)
         self.installGestures(.all, for: box)
