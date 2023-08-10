@@ -10,30 +10,9 @@ import RealityKit
 import ARKit
 import Combine
 
-var arView: ARView!
-
 struct ContentView : View {
     var body: some View {
-        ARViewContainer()
-            .overlay(
-                VStack{
-                    Spacer()
-                    HStack{
-                        Button(action: {arView.changeObjectsLibrary()}){
-                            Text("切换图像库")
-                                .frame(width: 200, height: 40)
-                                .font(.title)
-                                .foregroundColor(.black)
-                                .background(Color.white)
-                                .opacity(0.6)
-                        }
-                        .offset(y: -30)
-                        .padding(.bottom, 30)
-                        .padding(.leading, 20)
-                    }
-                }
-            )
-            .edgesIgnoringSafeArea(.all)
+        ARViewContainer().edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -41,24 +20,13 @@ struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         
-        arView = ARView(frame: .zero)
+        let arView = ARView(frame: .zero)
         let config = ARWorldTrackingConfiguration()
-        guard let trackedObjectsLib = ARReferenceObject.referenceObjects(inGroupNamed: "ReferenceObjectsLibrary", bundle: Bundle.main) else {
-            fatalError("无法加载参考物体库")
-        }
-//        var trackedObjectsLib = Set<ARReferenceObject>()
-//        let objURL = Bundle.main.url(forResource: "objBook", withExtension: "arobject")
-//        do {
-//            let  newReferenceObject = try ARReferenceObject(archiveURL: objURL!)
-//            trackedObjectsLib.insert(newReferenceObject)
-//        } catch {
-//            fatalError("无法加载参数物体")
-//        }
-        
-        config.detectionObjects = trackedObjectsLib
-        config.maximumNumberOfTrackedImages = 1
+        config.planeDetection = .horizontal
+        config.worldAlignment = .gravity
         arView.session.run(config, options: [])
         arView.session.delegate = arView
+        arView.createPlane()
         return arView
     }
     
@@ -66,32 +34,29 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
+var boxMesh = MeshResource.generateBox(size: 0.1)
+var boxMaterial = SimpleMaterial(color: .white, isMetallic: false)
+var boxEntity = ModelEntity(mesh: boxMesh, materials: [boxMaterial])
+
+var planeMesh = MeshResource.generatePlane(width: 0.3, depth: 0.3)
+var planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
+var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
+
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        guard let objectAnchor = anchors[0] as? ARObjectAnchor else {
-            return
-        }
-        let referenceObjectName = objectAnchor.referenceObject.name == "Book" ? "toy_bigplane" : "toy_drummer"
-        DispatchQueue.main.async {
-            do {
-                let myModelEntity = try Entity.load(named: referenceObjectName)
-                let objectAnchorEntity = AnchorEntity(anchor: objectAnchor)
-                objectAnchorEntity.addChild(myModelEntity)
-                self.scene.addAnchor(objectAnchorEntity)
-            } catch {
-                print("无法加载模型")
-            }
-        }
-    }
-    
-    func changeObjectsLibrary(){
-        let config = self.session.configuration as! ARWorldTrackingConfiguration
-        guard let detectedObjectsLib = ARReferenceObject.referenceObjects(inGroupNamed: "ReferenceObjectsLibrary2", bundle: Bundle.main) else {
-            fatalError("无法加载参考物体")
-        }
-        config.detectionObjects = detectedObjectsLib
-        self.session.run(config, options: [.resetTracking, .removeExistingAnchors])
-        print("参考物体库切换成功")
+    func createPlane(){
+        let planeAnchor = AnchorEntity(plane: .horizontal, classification: .any, minimumBounds: [0.3, 0.3])
+        planeAnchor.addChild(boxEntity)
+        var tf = boxEntity.transform
+        tf.translation = SIMD3(tf.translation.x, tf.translation.y + 0.06, tf.translation.z)
+        boxEntity.move(to: tf, relativeTo: nil)
+        planeAnchor.addChild(planeEntity)
+        let directionalLight = DirectionalLight()
+        directionalLight.light.intensity = 50000
+        directionalLight.light.color = UIColor.red
+        directionalLight.light.isRealWorldProxy = false
+        directionalLight.look(at: [0, 0, 0], from: [0.01, 1, 0.01], relativeTo: nil)
+        planeAnchor.addChild(directionalLight)
+        self.scene.addAnchor(planeAnchor)
     }
 }
 
