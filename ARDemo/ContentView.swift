@@ -34,10 +34,6 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var boxMesh = MeshResource.generateBox(size: 0.1)
-var boxMaterial = SimpleMaterial(color: .white, isMetallic: false)
-var boxEntity = ModelEntity(mesh: boxMesh, materials: [boxMaterial])
-
 var planeMesh = MeshResource.generatePlane(width: 0.3, depth: 0.3)
 var planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
 var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
@@ -45,17 +41,14 @@ var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
 extension ARView: ARSessionDelegate{
     func createPlane(){
         let planeAnchor = AnchorEntity(plane: .horizontal, classification: .any, minimumBounds: [0.3, 0.3])
-        planeAnchor.addChild(boxEntity)
-        var tf = boxEntity.transform
-        tf.translation = SIMD3(tf.translation.x, tf.translation.y + 0.06, tf.translation.z)
-        boxEntity.move(to: tf, relativeTo: nil)
         planeAnchor.addChild(planeEntity)
-        let directionalLight = DirectionalLight()
-        directionalLight.light.intensity = 50000
-        directionalLight.light.color = UIColor.red
-        directionalLight.light.isRealWorldProxy = false
-        directionalLight.look(at: [0, 0, 0], from: [0.01, 1, 0.01], relativeTo: nil)
-        planeAnchor.addChild(directionalLight)
+        let l = PointLight()
+        l.light = PointLightComponent(color: .green, intensity: 5000, attenuationRadius: 0.5)
+        l.position = [planeEntity.position.x, planeEntity.position.y + 0.1, planeEntity.position.z + 0.2]
+        l.move(to: l.transform, relativeTo: nil)
+        let lightAnchor = AnchorEntity(world: l.position)
+        lightAnchor.components.set(l.light)
+        self.scene.addAnchor(lightAnchor)
         self.scene.addAnchor(planeAnchor)
     }
 }
