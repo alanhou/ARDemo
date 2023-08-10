@@ -42,9 +42,9 @@ extension ARView: ARSessionDelegate{
     func createPlane(){
         let planeAnchor = AnchorEntity(plane: .horizontal, classification: .any, minimumBounds: [0.3, 0.3])
         planeAnchor.addChild(planeEntity)
-        let l = PointLight()
-        l.light = PointLightComponent(color: .green, intensity: 5000, attenuationRadius: 0.5)
-        l.position = [planeEntity.position.x, planeEntity.position.y + 0.1, planeEntity.position.z + 0.2]
+        let l = SpotLight()
+        l.light = SpotLightComponent(color: .yellow, intensity: 5000, innerAngleInDegrees: 5, outerAngleInDegrees: 80, attenuationRadius: 2)
+        l.position = [planeEntity.position.x, planeEntity.position.y + 0.1, planeEntity.position.z + 0.5]
         l.move(to: l.transform, relativeTo: nil)
         let lightAnchor = AnchorEntity(world: l.position)
         lightAnchor.components.set(l.light)
