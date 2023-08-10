@@ -19,9 +19,9 @@ struct ContentView : View {
                 VStack{
                     Spacer()
                     HStack{
-                        Button(action: {arView.changeImagesLibrary()}){
+                        Button(action: {arView.changeObjectsLibrary()}){
                             Text("切换图像库")
-                                .frame(width: 200, height: 400)
+                                .frame(width: 200, height: 40)
                                 .font(.title)
                                 .foregroundColor(.black)
                                 .background(Color.white)
@@ -30,18 +30,6 @@ struct ContentView : View {
                         .offset(y: -30)
                         .padding(.bottom, 30)
                         .padding(.leading, 20)
-                        Spacer()
-                        Button(action: {arView.addReferenceImage()}){
-                            Text("添加参考图像")
-                                .frame(width: 200, height: 400)
-                                .font(.title)
-                                .foregroundColor(.black)
-                                .background(Color.white)
-                                .opacity(0.6)
-                        }
-                        .offset(y: -30)
-                        .padding(.bottom, 30)
-                        .padding(.trailing, 20)
                     }
                 }
             )
@@ -54,16 +42,20 @@ struct ARViewContainer: UIViewRepresentable {
     func makeUIView(context: Context) -> ARView {
         
         arView = ARView(frame: .zero)
-        let config = ARImageTrackingConfiguration()
-        guard let trackedImagesLib = ARReferenceImage.referenceImages(inGroupNamed: "ReferenceImagesLibrary", bundle: Bundle.main) else {
-            fatalError("无法加载参考图像库")
+        let config = ARWorldTrackingConfiguration()
+        guard let trackedObjectsLib = ARReferenceObject.referenceObjects(inGroupNamed: "ReferenceObjectsLibrary", bundle: Bundle.main) else {
+            fatalError("无法加载参考物体库")
         }
-//        var trackedImagesLib = Set<ARReferenceImage>()
-//        let image = UIImage(named: "toy_biplane")
-//        let referenceIMage = ARReferenceImage(image!.cgImage!, orientation: .up, physicalWidth: 0.15)
-//        trackedImagesLib.insert(referenceIMage)
+//        var trackedObjectsLib = Set<ARReferenceObject>()
+//        let objURL = Bundle.main.url(forResource: "objBook", withExtension: "arobject")
+//        do {
+//            let  newReferenceObject = try ARReferenceObject(archiveURL: objURL!)
+//            trackedObjectsLib.insert(newReferenceObject)
+//        } catch {
+//            fatalError("无法加载参数物体")
+//        }
         
-        config.trackingImages = trackedImagesLib
+        config.detectionObjects = trackedObjectsLib
         config.maximumNumberOfTrackedImages = 1
         arView.session.run(config, options: [])
         arView.session.delegate = arView
@@ -76,39 +68,30 @@ struct ARViewContainer: UIViewRepresentable {
 
 extension ARView: ARSessionDelegate{
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        guard let imageAnchor = anchors[0] as? ARImageAnchor else {
+        guard let objectAnchor = anchors[0] as? ARObjectAnchor else {
             return
         }
-        let referenceImageName = imageAnchor.referenceImage.name ?? "toy_biplane"
+        let referenceObjectName = objectAnchor.referenceObject.name == "Book" ? "toy_bigplane" : "toy_drummer"
         DispatchQueue.main.async {
             do {
-                let myModelEntity = try Entity.load(named: referenceImageName)
-                let imageAnchorEntity = AnchorEntity(anchor: imageAnchor)
-                imageAnchorEntity.addChild(myModelEntity)
-                self.scene.addAnchor(imageAnchorEntity)
+                let myModelEntity = try Entity.load(named: referenceObjectName)
+                let objectAnchorEntity = AnchorEntity(anchor: objectAnchor)
+                objectAnchorEntity.addChild(myModelEntity)
+                self.scene.addAnchor(objectAnchorEntity)
             } catch {
                 print("无法加载模型")
             }
         }
     }
     
-    func changeImagesLibrary(){
-        let config = self.session.configuration as! ARImageTrackingConfiguration
-        guard let trackedImagesLib = ARReferenceImage.referenceImages(inGroupNamed: "ReferenceImagesLibrary2", bundle: Bundle.main) else {
-            fatalError("无法加载参考图像库")
+    func changeObjectsLibrary(){
+        let config = self.session.configuration as! ARWorldTrackingConfiguration
+        guard let detectedObjectsLib = ARReferenceObject.referenceObjects(inGroupNamed: "ReferenceObjectsLibrary2", bundle: Bundle.main) else {
+            fatalError("无法加载参考物体")
         }
-        config.trackingImages = trackedImagesLib
-        config.maximumNumberOfTrackedImages = 1
+        config.detectionObjects = detectedObjectsLib
         self.session.run(config, options: [.resetTracking, .removeExistingAnchors])
-    }
-    
-    func addReferenceImage() {
-        guard let config = self.session.configuration as? ARImageTrackingConfiguration else {return}
-        let image = UIImage(named: "toy_biplane")
-        let referenceImage = ARReferenceImage(image!.cgImage!, orientation: .up, physicalWidth: 0.15)
-        config.trackingImages.insert(referenceImage)
-        self.session.run(config, options: [])
-        print("insert image OK")
+        print("参考物体库切换成功")
     }
 }
 
@@ -119,4 +102,3 @@ struct ContentView_Previews : PreviewProvider {
     }
 }
 #endif
-
