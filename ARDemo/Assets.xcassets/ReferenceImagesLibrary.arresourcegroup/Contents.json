@@ -1,0 +1,14 @@
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "resources" : [
+    {
+      "filename" : "toy_drummer.arreferenceimage"
+    },
+    {
+      "filename" : "toy_robot_vintage.arreferenceimage"
+    }
+  ]
+}
