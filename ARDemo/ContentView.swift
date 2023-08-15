@@ -8,7 +8,6 @@
 import SwiftUI
 import RealityKit
 import ARKit
-import Combine
 
 struct ContentView : View {
     var body: some View {
@@ -19,14 +18,12 @@ struct ContentView : View {
 struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
-        
         let arView = ARView(frame: .zero)
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = .horizontal
-        config.worldAlignment = .gravity
-        arView.session.run(config, options: [])
+        config.isLightEstimationEnabled = true
         arView.session.delegate = arView
-        arView.createPlane()
+        arView.session.run(config, options: [])
         return arView
     }
     
@@ -34,22 +31,35 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var planeMesh = MeshResource.generatePlane(width: 0.3, depth: 0.3)
-var planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
-var planeEntity = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
+var isPlaced = false
+var times: Int = 0
 
 extension ARView: ARSessionDelegate{
-    func createPlane(){
-        let planeAnchor = AnchorEntity(plane: .horizontal, classification: .any, minimumBounds: [0.3, 0.3])
-        planeAnchor.addChild(planeEntity)
-        let l = SpotLight()
-        l.light = SpotLightComponent(color: .yellow, intensity: 5000, innerAngleInDegrees: 5, outerAngleInDegrees: 80, attenuationRadius: 2)
-        l.position = [planeEntity.position.x, planeEntity.position.y + 0.1, planeEntity.position.z + 0.5]
-        l.move(to: l.transform, relativeTo: nil)
-        let lightAnchor = AnchorEntity(world: l.position)
-        lightAnchor.components.set(l.light)
-        self.scene.addAnchor(lightAnchor)
-        self.scene.addAnchor(planeAnchor)
+    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        guard let anchor = anchors.first as? ARPlaneAnchor, !isPlaced else {
+            return
+        }
+        do {
+            let planeAnchor = AnchorEntity(anchor: anchor)
+            let box: MeshResource = .generateBox(size: 0.1, cornerRadius: 0.003)
+            var boxMaterial = SimpleMaterial(color: .blue, isMetallic: false)
+            boxMaterial.color = try .init(texture: .init(.load(named: "Box_Texture")))
+            boxMaterial.roughness = 0.8
+            let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
+            planeAnchor.addChild(boxEntity)
+            self.installGestures(for: boxEntity)
+            self.scene.addAnchor(planeAnchor)
+            isPlaced = true
+        } catch {
+            print("无法加载图片纹理")
+        }
+    }
+    
+    public func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        guard let estimatLight = frame.lightEstimate , times < 10 else {return }
+        print("light intensity: \(estimatLight.ambientIntensity),light temperature: \(estimatLight.ambientColorTemperature)")
+        times += 1
+        ARLightEstimate.self
     }
 }
 
