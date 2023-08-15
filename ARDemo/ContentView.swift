@@ -21,7 +21,9 @@ struct ARViewContainer: UIViewRepresentable {
         let arView = ARView(frame: .zero)
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = .horizontal
-        config.environmentTexturing = .none
+        arView.automaticallyConfigureSession = false
+        config.environmentTexturing = .automatic
+        config.wantsHDREnvironmentTextures = true
         arView.session.delegate = arView
         arView.session.run(config, options: [])
         return arView
@@ -30,8 +32,6 @@ struct ARViewContainer: UIViewRepresentable {
     func updateUIView(_ uiView: ARView, context: Context) {}
     
 }
-
-var times: Int = 0
 
 extension ARView: ARSessionDelegate{
     public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
