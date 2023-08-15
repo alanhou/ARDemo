@@ -19,9 +19,10 @@ struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = .horizontal
+        let config = ARFaceTrackingConfiguration()
         config.isLightEstimationEnabled = true
+        let faceAnchor = try! FaceMask.loadGlass1()
+        arView.scene.addAnchor(faceAnchor)
         arView.session.delegate = arView
         arView.session.run(config, options: [])
         return arView
@@ -31,35 +32,14 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var isPlaced = false
 var times: Int = 0
 
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        guard let anchor = anchors.first as? ARPlaneAnchor, !isPlaced else {
-            return
-        }
-        do {
-            let planeAnchor = AnchorEntity(anchor: anchor)
-            let box: MeshResource = .generateBox(size: 0.1, cornerRadius: 0.003)
-            var boxMaterial = SimpleMaterial(color: .blue, isMetallic: false)
-            boxMaterial.color = try .init(texture: .init(.load(named: "Box_Texture")))
-            boxMaterial.roughness = 0.8
-            let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
-            planeAnchor.addChild(boxEntity)
-            self.installGestures(for: boxEntity)
-            self.scene.addAnchor(planeAnchor)
-            isPlaced = true
-        } catch {
-            print("无法加载图片纹理")
-        }
-    }
-    
     public func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        guard let estimatLight = frame.lightEstimate , times < 10 else {return }
+        guard let estimatLight = frame.lightEstimate as? ARDirectionalLightEstimate, times < 10 else { return }
         print("light intensity: \(estimatLight.ambientIntensity),light temperature: \(estimatLight.ambientColorTemperature)")
+        print("primary light direction: \(estimatLight.primaryLightDirection), primary light intensity: \(estimatLight.primaryLightIntensity)")
         times += 1
-        ARLightEstimate.self
     }
 }
 

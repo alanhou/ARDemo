@@ -1,0 +1,32 @@
+[
+  {
+    "libraryIdentifier" : "bed410cbb0f64825a530223833b4bdaa",
+    "format" : "model",
+    "displayName" : "minion-glasses.reality"
+  },
+  {
+    "libraryIdentifier" : "eed3fded9ff3549f606f83207e243f12",
+    "format" : "model",
+    "displayName" : "model.usdz"
+  },
+  {
+    "libraryIdentifier" : "3f0813bf791e029d1d95e7865bcb4050",
+    "format" : "model",
+    "displayName" : "little-indian.reality"
+  },
+  {
+    "libraryIdentifier" : "b157f2262db07d0bbce06d60a7eff1fa",
+    "format" : "model",
+    "displayName" : "bugs-bunny.reality"
+  },
+  {
+    "libraryIdentifier" : "a86b8221b92c470b36197b75c5d5a1f4",
+    "format" : "model",
+    "displayName" : "Helicopter-pilot.reality"
+  },
+  {
+    "libraryIdentifier" : "45f44f70847c61235f3664e4cefa5742",
+    "format" : "model",
+    "displayName" : "CenteredFace.usdz"
+  }
+]
