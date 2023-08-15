@@ -19,10 +19,9 @@ struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
-        let config = ARFaceTrackingConfiguration()
-        config.isLightEstimationEnabled = true
-        let faceAnchor = try! FaceMask.loadGlass1()
-        arView.scene.addAnchor(faceAnchor)
+        let config = ARWorldTrackingConfiguration()
+        config.planeDetection = .horizontal
+        config.environmentTexturing = .none
         arView.session.delegate = arView
         arView.session.run(config, options: [])
         return arView
@@ -35,11 +34,18 @@ struct ARViewContainer: UIViewRepresentable {
 var times: Int = 0
 
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        guard let estimatLight = frame.lightEstimate as? ARDirectionalLightEstimate, times < 10 else { return }
-        print("light intensity: \(estimatLight.ambientIntensity),light temperature: \(estimatLight.ambientColorTemperature)")
-        print("primary light direction: \(estimatLight.primaryLightDirection), primary light intensity: \(estimatLight.primaryLightIntensity)")
-        times += 1
+    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        guard let anchor = anchors.first as? ARPlaneAnchor else {return}
+        let planeAnchor = AnchorEntity(anchor: anchor)
+        let sphereRadius: Float = 0.1
+        let sphere: MeshResource = .generateSphere(radius: sphereRadius)
+        let sphereMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+        let sphereEntity = ModelEntity(mesh: sphere, materials: [sphereMaterial])
+        sphereEntity.transform.translation = [0, planeAnchor.transform.translation.y+0.05, 0]
+        planeAnchor.addChild(sphereEntity)
+        self.scene.addAnchor(planeAnchor)
+        self.session.delegate = nil
+        self.session.run(ARWorldTrackingConfiguration())
     }
 }
 
