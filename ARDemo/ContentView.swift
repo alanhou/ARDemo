@@ -9,15 +9,6 @@ import SwiftUI
 import RealityKit
 import ARKit
 
-struct ManualProbe {
-    var objectProbeAnchor: AREnvironmentProbeAnchor?
-    var requiresRefresh: Bool = false
-    var lastUpdateTime: TimeInterval = Date().timeIntervalSince1970
-    var dateTime = Date()
-    var sphereEntity: ModelEntity!
-    var isPlanced = false
-}
-
 struct ContentView : View {
     var body: some View {
         ARViewContainer().edgesIgnoringSafeArea(.all)
@@ -28,13 +19,14 @@ struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = .horizontal
-        arView.automaticallyConfigureSession = false
-        config.isLightEstimationEnabled = true
-        config.environmentTexturing = .manual
+        guard ARBodyTrackingConfiguration.isSupported else {
+            fatalError("当前设备不支持人体肢体捕捉")
+        }
+        let config = ARBodyTrackingConfiguration()
+        config.automaticSkeletonScaleEstimationEnabled = true
+        config.frameSemantics = .bodyDetection
         arView.session.delegate = arView
-        arView.session.run(config, options: [])
+        arView.session.run(config)
         return arView
     }
     
@@ -42,51 +34,40 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var manualProbe = ManualProbe()
+let circleWidth: CGFloat = 10
+let circleHeight: CGFloat = 10
+var isPrinted = false
 
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        guard let anchor = anchors.first as? ARPlaneAnchor, !manualProbe.isPlanced else {return}
-        let planeAnchor = AnchorEntity(anchor: anchor)
-        let sphereRadius: Float = 0.1
-        let sphere: MeshResource = .generateSphere(radius: sphereRadius)
-        let sphereMaterial = SimpleMaterial(color: .blue, isMetallic: true)
-        manualProbe.sphereEntity = ModelEntity(mesh: sphere, materials: [sphereMaterial])
-        manualProbe.sphereEntity.transform.translation = [0, planeAnchor.transform.translation.y+0.05, 0]
-        manualProbe.requiresRefresh = true
-        updateProbe()
-        planeAnchor.addChild(manualProbe.sphereEntity)
-        self.scene.addAnchor(planeAnchor)
-        self.session.run(ARWorldTrackingConfiguration())
-    }
-    
     public func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        if manualProbe.requiresRefresh && (manualProbe.dateTime.timeIntervalSince1970 - manualProbe.lastUpdateTime > 1) {
-            manualProbe.lastUpdateTime = manualProbe.dateTime.timeIntervalSince1970
-            updateProbe()
+        ClearCircleLayers()
+        if let detectedBody = frame.detectedBody {
+            guard let interfaceOrientation = self.window?.windowScene?.interfaceOrientation else { return }
+            let transform = frame.displayTransform(for: interfaceOrientation, viewportSize: self.frame.size)
+            
+            detectedBody.skeleton.jointLandmarks.forEach{landmark in
+                let normalizedCenter = CGPoint(x: CGFloat(landmark[0]), y: CGFloat(landmark[1])).applying(transform)
+                let center = normalizedCenter.applying(CGAffineTransform.identity.scaledBy(x: self.frame.width, y: self.frame.height))
+                let rect = CGRect(origin: CGPoint(x: center.x - circleWidth/2, y: center.y - circleHeight/2), size: CGSize(width: circleWidth, height: circleHeight))
+                let circleLayer = CAShapeLayer()
+                circleLayer.path = UIBezierPath(ovalIn: rect).cgPath
+                self.layer.addSublayer(circleLayer)
+            }
+            
+            if !isPrinted {
+                let jointNames = detectedBody.skeleton.definition.jointNames
+                for jointName in jointNames {
+                    let joint2dLandmark = detectedBody.skeleton.landmark(for: ARSkeleton.JointName(rawValue: jointName))
+                    let joint2dIndex = detectedBody.skeleton.definition.index(for: ARSkeleton.JointName(rawValue: jointName))
+                    print("\(jointName), \(String(describing: joint2dLandmark)), the index is \(joint2dIndex), parent index is \(detectedBody.skeleton.definition.parentIndices[joint2dIndex])")
+                }
+                isPrinted = true
+            }
         }
     }
     
-    func updateProbe() {
-        if let probeAnchor = manualProbe.objectProbeAnchor {
-            self.session.remove(anchor: probeAnchor)
-            manualProbe.objectProbeAnchor = nil
-        }
-        var extent = (manualProbe.sphereEntity.model?.mesh.bounds.extents)! * manualProbe.sphereEntity.transform.scale
-        extent.x *= 3
-        extent.z *= 3
-        let verticalOffset = SIMD3(0, extent.y, 0)
-        var probeTransform = manualProbe.sphereEntity.transform
-        probeTransform.translation += verticalOffset
-        let position = simd_float4x4(
-            SIMD4(1, 0, 0, 0),
-            SIMD4(0, 1, 0, 0),
-            SIMD4(0, 0, 1, 0),
-            SIMD4(manualProbe.sphereEntity.transform.translation, 1)
-        )
-        extent.y *= 2
-        manualProbe.objectProbeAnchor = AREnvironmentProbeAnchor(name: "objectProbe", transform: position, extent: extent)
-        self.session.add(anchor: manualProbe.objectProbeAnchor!)
+    private func ClearCircleLayers() {
+        self.layer.sublayers?.compactMap{$0 as? CAShapeLayer}.forEach{$0.removeFromSuperlayer()}
     }
 }
 
