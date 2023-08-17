@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import ARKit
+import Combine
 
 struct ContentView : View {
     var body: some View {
@@ -19,15 +20,15 @@ struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
-        guard ARBodyTrackingConfiguration.isSupported else {
-            fatalError("当前设备不支持人体肢体捕捉")
+        guard ARWorldTrackingConfiguration.supportsFrameSemantics(ARConfiguration.FrameSemantics.personSegmentationWithDepth) else {
+            fatalError("当前设备不支持人形遮挡")
         }
         let config = ARBodyTrackingConfiguration()
-        config.automaticSkeletonScaleEstimationEnabled = true
-        config.frameSemantics = .bodyDetection
+        config.frameSemantics = .personSegmentationWithDepth
+        config.planeDetection = .horizontal
         arView.session.delegate = arView
-        arView.createSphere()
         arView.session.run(config)
+        arView.loadModel()
         return arView
     }
     
@@ -35,32 +36,25 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var leftEye: ModelEntity!
-var rightEye: ModelEntity!
-var eyeAnchor = AnchorEntity()
+var robotCharacter: BodyTrackedEntity?
+let robotOffset: SIMD3<Float> = [-1, 0, 0, 0]
+let robotAnchor = AnchorEntity()
 
 extension ARView: ARSessionDelegate{
-    func createSphere() {
-        let eyeMat = SimpleMaterial(color: .green, isMetallic: true)
-        leftEye = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [eyeMat])
-        rightEye = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [eyeMat])
-        eyeAnchor.addChild(leftEye)
-        eyeAnchor.addChild(rightEye)
-        self.scene.addAnchor(eyeAnchor)
-    }
-    
-    public func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        for anchor in anchors {
-            guard let bodyAnchor = anchor as? ARBodyAnchor else { continue }
-            let bodyPosition = simd_make_float3(bodyAnchor.transform.columns.3)
-            guard let leftEyeMatrix = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "left_eye_joint")), let rightEyeMatrix = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_eye_joint")) else { return }
-            let posLeftEye = simd_make_float3(leftEyeMatrix.columns.3)
-            leftEye.position = posLeftEye
-            let posRightEye = simd_make_float3(rightEyeMatrix.columns.3)
-            rightEye.position = posRightEye
-            eyeAnchor.position = bodyPosition
-            eyeAnchor.orientation = Transform(matrix: bodyAnchor.transform).rotation
-        }
+    func loadModel(){
+        var cancellable: AnyCancellable? = nil
+        cancellable = Entity.loadModelAsync(named: "fender_stratocaster.usdz").sink(
+            receiveCompletion: { completion in
+                if case let .failure(error) = completion {
+                    print("无法加载模型,错误：\(error.localizedDescription)")
+                }
+                cancellable?.cancel()
+        }, receiveValue: { entity in
+            let planeAnchor = AnchorEntity(plane:.horizontal)
+            planeAnchor.addChild(entity)
+            self.scene.addAnchor(planeAnchor)
+            cancellable?.cancel()
+        })
     }
 }
 
