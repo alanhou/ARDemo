@@ -34,23 +34,31 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-let circleWidth: CGFloat = 10
-let circleHeight: CGFloat = 10
-var isPrinted = false
+var leftEye: ModelEntity!
+var rightEye: ModelEntity!
+var eyeAnchor = AnchorEntity()
 
 extension ARView: ARSessionDelegate{
+    func createSphere() {
+        let eyeMat = SimpleMaterial(color: .green, isMetallic: true)
+        leftEye = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [eyeMat])
+        rightEye = ModelEntity(mesh: .generateSphere(radius: 0.02), materials: [eyeMat])
+        eyeAnchor.addChild(leftEye)
+        eyeAnchor.addChild(rightEye)
+        self.scene.addAnchor(eyeAnchor)
+    }
+    
     public func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
         for anchor in anchors {
             guard let bodyAnchor = anchor as? ARBodyAnchor else { continue }
-            if !isPrinted {
-                let jointNames = bodyAnchor.skeleton.definition.jointNames
-                for jointName in jointNames {
-                    let modelTransform = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: jointName))
-                    let index = bodyAnchor.skeleton.definition.index(for: ARSkeleton.JointName(rawValue: jointName))
-                    print("\(jointName), \(String(describing: modelTransform?.columns.3)), the index is \(index), parent index is \(bodyAnchor.skeleton.definition.parentIndices[index])")
-                }
-                isPrinted = true
-            }
+            let bodyPosition = simd_make_float3(bodyAnchor.transform.columns.3)
+            guard let leftEyeMatrix = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "left_eye_joint")), let rightEyeMatrix = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_eye_joint")) else { return }
+            let posLeftEye = simd_make_float3(leftEyeMatrix.columns.3)
+            leftEye.position = posLeftEye
+            let posRightEye = simd_make_float3(rightEyeMatrix.columns.3)
+            rightEye.position = posRightEye
+            eyeAnchor.position = bodyPosition
+            eyeAnchor.orientation = Transform(matrix: bodyAnchor.transform).rotation
         }
     }
 }
