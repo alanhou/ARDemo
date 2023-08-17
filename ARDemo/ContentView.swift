@@ -26,6 +26,7 @@ struct ARViewContainer: UIViewRepresentable {
         config.automaticSkeletonScaleEstimationEnabled = true
         config.frameSemantics = .bodyDetection
         arView.session.delegate = arView
+        arView.createSphere()
         arView.session.run(config)
         return arView
     }
