@@ -39,35 +39,19 @@ let circleHeight: CGFloat = 10
 var isPrinted = false
 
 extension ARView: ARSessionDelegate{
-    public func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        ClearCircleLayers()
-        if let detectedBody = frame.detectedBody {
-            guard let interfaceOrientation = self.window?.windowScene?.interfaceOrientation else { return }
-            let transform = frame.displayTransform(for: interfaceOrientation, viewportSize: self.frame.size)
-            
-            detectedBody.skeleton.jointLandmarks.forEach{landmark in
-                let normalizedCenter = CGPoint(x: CGFloat(landmark[0]), y: CGFloat(landmark[1])).applying(transform)
-                let center = normalizedCenter.applying(CGAffineTransform.identity.scaledBy(x: self.frame.width, y: self.frame.height))
-                let rect = CGRect(origin: CGPoint(x: center.x - circleWidth/2, y: center.y - circleHeight/2), size: CGSize(width: circleWidth, height: circleHeight))
-                let circleLayer = CAShapeLayer()
-                circleLayer.path = UIBezierPath(ovalIn: rect).cgPath
-                self.layer.addSublayer(circleLayer)
-            }
-            
+    public func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let bodyAnchor = anchor as? ARBodyAnchor else { continue }
             if !isPrinted {
-                let jointNames = detectedBody.skeleton.definition.jointNames
+                let jointNames = bodyAnchor.skeleton.definition.jointNames
                 for jointName in jointNames {
-                    let joint2dLandmark = detectedBody.skeleton.landmark(for: ARSkeleton.JointName(rawValue: jointName))
-                    let joint2dIndex = detectedBody.skeleton.definition.index(for: ARSkeleton.JointName(rawValue: jointName))
-                    print("\(jointName), \(String(describing: joint2dLandmark)), the index is \(joint2dIndex), parent index is \(detectedBody.skeleton.definition.parentIndices[joint2dIndex])")
+                    let modelTransform = bodyAnchor.skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: jointName))
+                    let index = bodyAnchor.skeleton.definition.index(for: ARSkeleton.JointName(rawValue: jointName))
+                    print("\(jointName), \(String(describing: modelTransform?.columns.3)), the index is \(index), parent index is \(bodyAnchor.skeleton.definition.parentIndices[index])")
                 }
                 isPrinted = true
             }
         }
-    }
-    
-    private func ClearCircleLayers() {
-        self.layer.sublayers?.compactMap{$0 as? CAShapeLayer}.forEach{$0.removeFromSuperlayer()}
     }
 }
 
