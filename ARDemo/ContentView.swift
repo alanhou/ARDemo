@@ -8,27 +8,43 @@
 import SwiftUI
 import RealityKit
 import ARKit
+import VideoToolbox
 import Combine
 
 struct ContentView : View {
     var body: some View {
-        ARViewContainer().edgesIgnoringSafeArea(.all)
+        ARViewContainer()
+            .overlay(
+                VStack{
+                    Spacer()
+                    Button(action: {arView.catchHuman()}){
+                        Text("截取人形")
+                            .frame(width:120,height:40)
+                            .font(.body)
+                            .foregroundColor(.black)
+                            .background(Color.white)
+                            .opacity(0.6)
+                    }
+                    .offset(y:-30)
+                    .padding(.bottom, 30)
+                }
+            ).edgesIgnoringSafeArea(.all)
     }
 }
+
+var arView : ARView!
 
 struct ARViewContainer: UIViewRepresentable {
     
     func makeUIView(context: Context) -> ARView {
-        let arView = ARView(frame: .zero)
+        arView = ARView(frame: .zero)
         guard ARWorldTrackingConfiguration.supportsFrameSemantics(ARConfiguration.FrameSemantics.personSegmentationWithDepth) else {
             fatalError("当前设备不支持人形遮挡")
         }
         let config = ARBodyTrackingConfiguration()
         config.frameSemantics = .personSegmentationWithDepth
-        config.planeDetection = .horizontal
         arView.session.delegate = arView
         arView.session.run(config)
-        arView.loadModel()
         return arView
     }
     
@@ -36,25 +52,57 @@ struct ARViewContainer: UIViewRepresentable {
     
 }
 
-var robotCharacter: BodyTrackedEntity?
-let robotOffset: SIMD3<Float> = [-1, 0, 0, 0]
-let robotAnchor = AnchorEntity()
+var arFrame : ARFrame!
+extension ARView : ARSessionDelegate{
+    public  func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        arFrame = frame
+    }
+    func catchHuman(){
+        if let segmentationBuffer = arFrame.segmentationBuffer {
+            if let uiImage = UIImage(pixelBuffer: segmentationBuffer)?.rotate(radians: .pi / 2) {
+                UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(imageSaveHandler(image:didFinishSavingWithError:contextInfo:)), nil)
+            }
+        }
+    }
+    @objc func imageSaveHandler(image:UIImage,didFinishSavingWithError error:NSError?,contextInfo:AnyObject) {
+        if error != nil {
+            print("保存图片出错")
+        } else {
+            print("保存图片成功")
+        }
+    }
+}
 
-extension ARView: ARSessionDelegate{
-    func loadModel(){
-        var cancellable: AnyCancellable? = nil
-        cancellable = Entity.loadModelAsync(named: "fender_stratocaster.usdz").sink(
-            receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print("无法加载模型,错误：\(error.localizedDescription)")
-                }
-                cancellable?.cancel()
-        }, receiveValue: { entity in
-            let planeAnchor = AnchorEntity(plane:.horizontal)
-            planeAnchor.addChild(entity)
-            self.scene.addAnchor(planeAnchor)
-            cancellable?.cancel()
-        })
+extension UIImage {
+    public convenience init?(pixelBuffer: CVPixelBuffer) {
+        var cgImage: CGImage?
+        VTCreateCGImageFromCVPixelBuffer(pixelBuffer, options: nil, imageOut: &cgImage)
+        
+        if let cgImage = cgImage {
+            self.init(cgImage: cgImage)
+        } else {
+            return nil
+        }
+    }
+    
+    func rotate(radians: CGFloat) -> UIImage {
+        let rotatedSize = CGRect(origin: .zero, size: size)
+            .applying(CGAffineTransform(rotationAngle: CGFloat(radians)))
+            .integral.size
+        UIGraphicsBeginImageContext(rotatedSize)
+        if let context = UIGraphicsGetCurrentContext() {
+            let origin = CGPoint(x: rotatedSize.width / 2.0,
+                                 y: rotatedSize.height / 2.0)
+            context.translateBy(x: origin.x, y: origin.y)
+            context.rotate(by: radians)
+            draw(in: CGRect(x: -origin.y, y: -origin.x,
+                            width: size.width, height: size.height))
+            let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            return rotatedImage ?? self
+        }
+        return self
     }
 }
 
