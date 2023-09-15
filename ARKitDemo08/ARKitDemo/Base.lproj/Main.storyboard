@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22113.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22089.1"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ARKitDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="sKn-d4-7cm">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </arscnView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Move device around to detect a horizontal surface" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ONy-9Y-9SV" userLabel="Instruction Label">
+                                <rect key="frame" x="0.0" y="310" width="393" height="69"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="21"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="8Pm-qV-VFw" userLabel="Main Stack View">
+                                <rect key="frame" x="16" y="473.66666666666674" width="471" height="328.33333333333326"/>
+                                <subviews>
+                                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="wcU-tz-0TH" userLabel="Light Estimation Stack View">
+                                        <rect key="frame" x="0.0" y="-19" width="471" height="19"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Light Estimation:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ACC-gP-yMI" userLabel="Light Estimation:">
+                                                <rect key="frame" x="0.0" y="0.0" width="471" height="0.0"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="ND7-8z-arE" userLabel="Light Estimation Switch">
+                                                <rect key="frame" x="0.0" y="19" width="473" height="0.0"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <connections>
+                                                    <action selector="lightEstimationSwitchValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="tzy-7A-y3V"/>
+                                                </connections>
+                                            </switch>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="lB3-FG-Rk3">
+                                        <rect key="frame" x="0.0" y="0.0" width="471" height="69.333333333333329"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ambient Intensity:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wu2-bc-hXS">
+                                                <rect key="frame" x="0.0" y="0.0" width="471" height="20.333333333333332"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="d2p-8b-iQ5" userLabel="Ambient Intensity Slider">
+                                                <rect key="frame" x="-2" y="39.333333333333314" width="475" height="31"/>
+                                                <connections>
+                                                    <action selector="ambientIntensitySliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="xAX-wN-05u"/>
+                                                </connections>
+                                            </slider>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="Bjn-KZ-Avk">
+                                        <rect key="frame" x="0.0" y="85.333333333333314" width="471" height="69.333333333333314"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ambient Color Temperature:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xSw-yM-v7V">
+                                                <rect key="frame" x="0.0" y="0.0" width="471" height="20.333333333333332"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="4jb-NI-loT" userLabel="Ambient Color Temperature Slider">
+                                                <rect key="frame" x="-2" y="39.333333333333371" width="475" height="31"/>
+                                                <connections>
+                                                    <action selector="ambientColorTemperatureSliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="eTZ-O4-XlN"/>
+                                                </connections>
+                                            </slider>
+                                        </subviews>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="e0B-mS-cs5" userLabel="Environmental Stack View">
+                                        <rect key="frame" x="0.0" y="170.66666666666669" width="471" height="157.66666666666669"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="evw-4e-hbp">
+                                                <rect key="frame" x="0.0" y="0.0" width="471" height="69.333333333333329"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Roughness:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bpq-7o-dvC">
+                                                        <rect key="frame" x="0.0" y="0.0" width="471" height="20.333333333333332"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="3t2-Dl-Urc">
+                                                        <rect key="frame" x="-2" y="39.333333333333258" width="475" height="31"/>
+                                                        <connections>
+                                                            <action selector="ambientColorTemperatureSliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="OCN-p3-aCq"/>
+                                                            <action selector="roughnessSliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="JdV-M5-2SL"/>
+                                                        </connections>
+                                                    </slider>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="19" translatesAutoresizingMaskIntoConstraints="NO" id="Blg-9C-Rkb">
+                                                <rect key="frame" x="0.0" y="88.333333333333258" width="471" height="69.333333333333314"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Metalness Label:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aZi-bv-G10">
+                                                        <rect key="frame" x="0.0" y="0.0" width="471" height="20.333333333333332"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Gzd-Sj-HeW">
+                                                        <rect key="frame" x="-2" y="39.333333333333371" width="475" height="31"/>
+                                                        <connections>
+                                                            <action selector="ambientColorTemperatureSliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="ytq-kF-4tf"/>
+                                                            <action selector="metalnessSliderValueDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="BqH-EA-s8d"/>
+                                                        </connections>
+                                                    </slider>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="8Pm-qV-VFw" secondAttribute="bottom" constant="16" id="n04-PC-Uwa"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="ambientColorTemperatureLabel" destination="xSw-yM-v7V" id="g3Z-Yl-fse"/>
+                        <outlet property="ambientColorTemperatureSlider" destination="4jb-NI-loT" id="EHV-lh-ane"/>
+                        <outlet property="ambientIntensityLabel" destination="Wu2-bc-hXS" id="DBM-Jf-gPq"/>
+                        <outlet property="ambientIntensitySlider" destination="d2p-8b-iQ5" id="9zb-j3-MAO"/>
+                        <outlet property="instructionLabel" destination="ONy-9Y-9SV" id="WbS-eE-3ea"/>
+                        <outlet property="lightEstimationStackView" destination="wcU-tz-0TH" id="UxZ-5B-kFc"/>
+                        <outlet property="lightEstimationSwitch" destination="ND7-8z-arE" id="ZbI-2F-xTd"/>
+                        <outlet property="mainStackView" destination="8Pm-qV-VFw" id="qwk-dN-S7j"/>
+                        <outlet property="metalnessLabel" destination="aZi-bv-G10" id="Nyi-PQ-GgV"/>
+                        <outlet property="roughnessLabel" destination="Bpq-7o-dvC" id="Fip-Nc-TCg"/>
+                        <outlet property="sceneView" destination="sKn-d4-7cm" id="KUN-V9-9Ks"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="32.824427480916029" y="-27.464788732394368"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
