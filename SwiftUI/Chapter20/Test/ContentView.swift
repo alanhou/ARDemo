@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var mytext = String(localized: "Hello World!")
     var body: some View {
         VStack {
-            Text(mytext)
-                .padding()
-            Button("Change Text") {
-                mytext = String(localized: "Goodbye World!")
-            }
+            MyView(mytext: "Hello World!")
             Spacer()
         }
+    }
+}
+
+struct MyView: View {
+    let mytext: LocalizedStringResource
+    
+    var body: some View {
+        Text(mytext)
+            .padding()
     }
 }
 
