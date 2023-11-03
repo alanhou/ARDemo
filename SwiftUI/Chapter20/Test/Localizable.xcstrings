@@ -2,7 +2,20 @@
   "sourceLanguage" : "en",
   "strings" : {
     "Hello World!" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hola mundo!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你好，世界！"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

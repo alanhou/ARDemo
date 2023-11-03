@@ -20,3 +20,12 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+#Preview {
+    ContentView()
+        .environment(\.locale, Locale(identifier: "es"))
+}
+#Preview {
+    ContentView()
+        .environment(\.locale, Locale(identifier: "zh"))
+        .environment(\.layoutDirection, .leftToRight)
+}
