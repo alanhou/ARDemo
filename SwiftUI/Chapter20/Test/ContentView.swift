@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var mytext = String(localized: "Hello World!")
     var body: some View {
         VStack {
-            Text("Hello World!", comment: "This is a welcome message")
+            Text(mytext)
                 .padding()
+            Button("Change Text") {
+                mytext = String(localized: "Goodbye World!")
+            }
             Spacer()
         }
     }

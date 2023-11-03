@@ -1,7 +1,40 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Change Text" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar Texto"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修改文本"
+          }
+        }
+      }
+    },
+    "Goodbye World!" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta Luego Mundo!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再见，世界！"
+          }
+        }
+      }
+    },
     "Hello World!" : {
+      "comment" : "This is a welcome message",
       "localizations" : {
         "es" : {
           "stringUnit" : {
