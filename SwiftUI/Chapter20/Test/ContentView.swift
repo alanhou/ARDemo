@@ -8,20 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var counter = 1
     var body: some View {
         VStack {
-            MyView(mytext: "Hello World!")
+            Text("\(counter) Item")
+                .padding()
+            Button("Add Unit") {
+                counter += 1
+            }
             Spacer()
         }
-    }
-}
-
-struct MyView: View {
-    let mytext: LocalizedStringResource
-    
-    var body: some View {
-        Text(mytext)
-            .padding()
     }
 }
 
