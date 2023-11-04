@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var inputText: String = "Initial text"
     var body: some View {
         VStack {
-            MyCustomView()
-                .frame(width: 200, height: 150)
-                .padding()
-            Spacer()
-        }
+            HStack {
+                Text(inputText)
+                Spacer()
+                Button("Clear") {
+                    inputText = ""
+                }
+            }
+            TextView(input: $inputText)
+        }.padding()
     }
 }
 
