@@ -8,18 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var inputText: String = "Initial text"
     var body: some View {
-        VStack {
-            HStack {
-                Text(inputText)
+        NavigationStack {
+            VStack {
+                NavigationLink("Open UIKit View", destination: {
+                    MyViewController()
+                }).buttonStyle(.borderedProminent)
                 Spacer()
-                Button("Clear") {
-                    inputText = ""
-                }
-            }
-            TextView(input: $inputText)
-        }.padding()
+            }.padding()
+        }
     }
 }
 
