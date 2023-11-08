@@ -8,32 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.openURL) var openURL
-    @State private var searchURL = ""
+    @State private var searchURL: URL = URL(string: "https://www.formasterminds.com")!
+    @State private var openSheet: Bool = false
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                TextField("Insert URL", text: $searchURL)
-                    .textFieldStyle(.roundedBorder)
-                    .autocapitalization(.none)
-                    .autocorrectionDisabled(true)
-                Button("Open Web") {
-                    if !searchURL.isEmpty {
-                        var components = URLComponents(string: searchURL)
-                        components?.scheme = "https"
-                        if let newURL = components?.string {
-                            if let url = newURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                                openURL(URL(string: url)!)
-                            }
-                        }
-                    }
-                    
-                }
-                    .buttonStyle(.borderedProminent)
-                Spacer()
-            }.padding()
-        }
+        VStack {
+            Button("Open Browser") {
+                openSheet = true
+            }.buttonStyle(.borderedProminent)
+            Spacer()
+        }.padding()
+            .sheet(isPresented: $openSheet) {
+                SafariBrowser(searchURL: $searchURL)
+            }
     }
 }
 
