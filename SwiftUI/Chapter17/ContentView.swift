@@ -8,8 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var webView: WebView!
+    @State private var inputURL: String = ""
+    
     var body: some View {
-        WebView(searchURL: URL(string: "https://www.google.com")!)
+        VStack {
+            HStack {
+                TextField("Insert URL", text: $inputURL)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled(true)
+                Button("Load") {
+                    let text = inputURL.trimmingCharacters(in: .whitespaces)
+                    if !text.isEmpty {
+                        webView.loadWeb(web: text)
+                    }
+                }
+            }.padding(5)
+            webView
+        }.onAppear {
+            webView = WebView(inputURL: $inputURL)
+        }
     }
 }
 
