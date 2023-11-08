@@ -8,12 +8,28 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var searchURL = "https://alanhou.org"
+    @Environment(\.openURL) var openURL
+    @State private var searchURL = ""
     
     var body: some View {
         NavigationStack {
             VStack {
-                Link("Open Web", destination: URL(string: searchURL)!)
+                TextField("Insert URL", text: $searchURL)
+                    .textFieldStyle(.roundedBorder)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled(true)
+                Button("Open Web") {
+                    if !searchURL.isEmpty {
+                        var components = URLComponents(string: searchURL)
+                        components?.scheme = "https"
+                        if let newURL = components?.string {
+                            if let url = newURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                                openURL(URL(string: url)!)
+                            }
+                        }
+                    }
+                    
+                }
                     .buttonStyle(.borderedProminent)
                 Spacer()
             }.padding()
