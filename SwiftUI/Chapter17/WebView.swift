@@ -10,12 +10,15 @@ import WebKit
 
 struct WebView: UIViewRepresentable {
     @Binding var inputURL: String
+    @Binding var backDisabled: Bool
+    @Binding var forwardDisabled: Bool
+    
     let view: WKWebView = WKWebView()
     
     func makeUIView(context: Context) -> WKWebView {
         view.navigationDelegate = context.coordinator
         let request = URLRequest(url: URL(string: "https://www.google.com")!)
-        view.load(request)
+        self.view.load(request)
         return view
     }
     func updateUIView(_ uiView: UIViewType, context: Context) {
@@ -33,20 +36,35 @@ struct WebView: UIViewRepresentable {
             }
         }
     }
+    func goBack() {
+        view.goBack()
+    }
+    func goForward() {
+        view.goForward()
+    }
+    func refresh() {
+        view.reload()
+    }
     func makeCoordinator() -> CoordinatorWebView {
-        return CoordinatorWebView(input: $inputURL)
+        return CoordinatorWebView(input: $inputURL, back: $backDisabled, forward: $forwardDisabled)
     }
 }
 
 class CoordinatorWebView: NSObject, WKNavigationDelegate {
     @Binding var inputURL: String
+    @Binding var backDisabled: Bool
+    @Binding var forwardDisabled: Bool
     
-    init(input: Binding<String>) {
+    init(input: Binding<String>, back: Binding<Bool>, forward: Binding<Bool>) {
         self._inputURL = input
+        self._backDisabled = back
+        self._forwardDisabled = forward
     }
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         if let webURL = webView.url {
             inputURL = webURL.absoluteString
+            backDisabled = !webView.canGoBack
+            forwardDisabled = !webView.canGoForward
         }
     }
 }
