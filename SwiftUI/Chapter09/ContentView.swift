@@ -7,13 +7,11 @@
 
 import SwiftUI
 
+enum MyErrors: Error {
+    case noData, noImage
+}
 struct ContentView: View {
-    var thumbnail: String {
-        get async {
-            try? await Task.sleep(nanoseconds: 3 * 1000000000)
-            return "mythumbnail"
-        }
-    }
+   
     var body: some View {
         VStack {
             Text("Hello, world!")
@@ -21,10 +19,25 @@ struct ContentView: View {
         }
         .onAppear {
             Task(priority: .background) {
-                let imageName = await thumbnail
-                print(imageName)
+                do {
+                    let imageName = try await loadImage(name: "image1")
+                    print(imageName)
+                } catch MyErrors.noData {
+                    print("Error: No Data Available")
+                } catch MyErrors.noImage {
+                    print("Error: No Image Available")
+                }
             }
         }
+    }
+    func loadImage(name: String) async throws -> String {
+        try? await Task.sleep(nanoseconds: 3 * 1000000000)
+        
+        let error = true
+        if error {
+            throw MyErrors.noImage
+        }
+        return "Name: \(name)"
     }
 }
 
