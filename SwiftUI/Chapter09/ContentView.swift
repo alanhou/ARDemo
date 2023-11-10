@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
+    var thumbnail: String {
+        get async {
+            try? await Task.sleep(nanoseconds: 3 * 1000000000)
+            return "mythumbnail"
+        }
+    }
     var body: some View {
         VStack {
             Text("Hello, world!")
@@ -15,22 +21,10 @@ struct ContentView: View {
         }
         .onAppear {
             Task(priority: .background) {
-                let imageName = await loadImage(name: "image1")
+                let imageName = await thumbnail
                 print(imageName)
             }
         }
-    }
-    func loadImage(name: String) async -> String {
-        let result = Task(priority: .background) { () -> String in
-            let imageData = await getMetadata()
-            return "Name: \(name) Size: \(imageData)"
-        }
-        let message = await result.value
-        return message
-    }
-    func getMetadata() async -> Int {
-        try? await Task.sleep(nanoseconds: 3 * 1000000000)
-        return 50000
     }
 }
 
