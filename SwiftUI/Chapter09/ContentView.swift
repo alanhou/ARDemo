@@ -14,8 +14,10 @@ struct ContentView: View {
                 .padding()
         }
         .task(priority: .background) {
-            let imageName = await loadImage(name: "image1")
-            print(imageName)
+            let imageName1 = await loadImage(name: "image1")
+            let imageName2 = await loadImage(name: "image2")
+            let imageName3 = await loadImage(name: "image3")
+            print("\(imageName1), \(imageName2), \(imageName3)")
         }
     }
     func loadImage(name: String) async -> String {
