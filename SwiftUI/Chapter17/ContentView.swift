@@ -12,15 +12,14 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Button("Load Web") {
-                Task(priority: .high) {
-                    await appData.loadWeb()
+            List {
+                ForEach(appData.listOfPosts) { post in
+                    VStack(alignment: .leading) {
+                        Text(post.title).bold()
+                        Text(post.body)
+                    }.padding(5)
                 }
-            }.disabled(appData.buttonDisabled)
-            
-            Text("Total Characters: \(appData.webContent.count)")
-                .padding()
-            Spacer()
+            }.listStyle(.plain)
         }.padding()
     }
 }

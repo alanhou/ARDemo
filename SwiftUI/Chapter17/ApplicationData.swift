@@ -8,27 +8,35 @@
 import SwiftUI
 import Observation
 
-@Observable class ApplicationData: NSObject, URLSessionTaskDelegate {
-    var webContent: String = ""
-    var buttonDisabled: Bool = false
+struct Post: Codable, Identifiable {
+    var id: Int
+    var userId: Int
+    var title: String
+    var body: String
+}
+
+@Observable class ApplicationData {
+    var listOfPosts: [Post] = []
     
-    func loadWeb() async {
-        buttonDisabled = true
-        
+    init() {
+        Task(priority: .high) {
+            await loadJSON()
+        }
+    }
+    func loadJSON() async {
         let session = URLSession.shared
+        let webURL = URL(string: "https://jsonplaceholder.typicode.com/posts")
         
-        let webURL = URL(string: "https://www.yahoo.com")
         do {
-            let (data, response) = try await session.data(from: webURL!, delegate: self)
+            let (data, response) = try await session.data(from: webURL!)
             if let resp = response as? HTTPURLResponse {
                 let status = resp.statusCode
                 if status == 200 {
-                    if let content = String(data: data, encoding: String.Encoding.ascii) {
+                    let decoder = JSONDecoder()
+                    if let posts = try? decoder.decode([Post].self, from: data) {
                         await MainActor.run {
-                            webContent = content
-                            buttonDisabled = false
+                            listOfPosts = posts
                         }
-                        print(content)
                     }
                 } else {
                     print("Error: \(status)")
@@ -37,9 +45,5 @@ import Observation
         } catch {
             print("Error: \(error)")
         }
-    }
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
-        print(request.url ?? "No URL")
-        return request
     }
 }
