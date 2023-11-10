@@ -15,7 +15,10 @@ import Observation
     func loadWeb() async {
         buttonDisabled = true
         
-        let session = URLSession.shared
+        let config = URLSessionConfiguration.default
+        config.waitsForConnectivity = true
+        let session = URLSession(configuration: config)
+        
         let webURL = URL(string: "https://www.yahoo.com")
         do {
             let (data, response) = try await session.data(from: webURL!)
