@@ -7,36 +7,27 @@
 
 import SwiftUI
 
-enum MyErrors: Error {
-    case noData, noImage
-}
 struct ContentView: View {
-   
     var body: some View {
         VStack {
             Text("Hello, world!")
                 .padding()
         }
         .onAppear {
+            let currentTime = Date()
             Task(priority: .background) {
-                do {
-                    let imageName = try await loadImage(name: "image1")
-                    print(imageName)
-                } catch MyErrors.noData {
-                    print("Error: No Data Available")
-                } catch MyErrors.noImage {
-                    print("Error: No Image Available")
-                }
+               async let imageName1 = loadImage(name: "image1")
+               async let imageName2 = loadImage(name: "image2")
+               async let imageName3 = loadImage(name: "image3")
+                
+                let listNames = await "\(imageName1), \(imageName2), \(imageName3)"
+                print(listNames)
+                print("Total Time: \(Date().timeIntervalSince(currentTime))")
             }
         }
     }
-    func loadImage(name: String) async throws -> String {
+    func loadImage(name: String) async -> String {
         try? await Task.sleep(nanoseconds: 3 * 1000000000)
-        
-        let error = true
-        if error {
-            throw MyErrors.noImage
-        }
         return "Name: \(name)"
     }
 }
