@@ -8,20 +8,18 @@
 import SwiftUI
 import Observation
 
-@Observable class ApplicationData {
+@Observable class ApplicationData: NSObject, URLSessionTaskDelegate {
     var webContent: String = ""
     var buttonDisabled: Bool = false
     
     func loadWeb() async {
         buttonDisabled = true
         
-        let config = URLSessionConfiguration.default
-        config.waitsForConnectivity = true
-        let session = URLSession(configuration: config)
+        let session = URLSession.shared
         
         let webURL = URL(string: "https://www.yahoo.com")
         do {
-            let (data, response) = try await session.data(from: webURL!)
+            let (data, response) = try await session.data(from: webURL!, delegate: self)
             if let resp = response as? HTTPURLResponse {
                 let status = resp.statusCode
                 if status == 200 {
@@ -39,5 +37,9 @@ import Observation
         } catch {
             print("Error: \(error)")
         }
+    }
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
+        print(request.url ?? "No URL")
+        return request
     }
 }
