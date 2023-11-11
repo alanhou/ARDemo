@@ -7,28 +7,32 @@
 
 import SwiftUI
 
+actor ItemData {
+    var counter: Int = 0
+    
+    func incrementCount() -> String {
+        counter += 1
+        return "Value: \(counter)"
+    }
+}
 struct ContentView: View {
+    var item: ItemData = ItemData()
+    
     var body: some View {
-        VStack {
-            Text("Hello, world!")
-                .padding()
-        }
-        .onAppear {
-            let currentTime = Date()
-            Task(priority: .background) {
-               async let imageName1 = loadImage(name: "image1")
-               async let imageName2 = loadImage(name: "image2")
-               async let imageName3 = loadImage(name: "image3")
-                
-                let listNames = await "\(imageName1), \(imageName2), \(imageName3)"
-                print(listNames)
-                print("Total Time: \(Date().timeIntervalSince(currentTime))")
+        Button("Start Process") {
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+                Task(priority: .background) {
+                    async let operation = item.incrementCount()
+                    print(await operation)
+                }
+            }
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { (timer) in
+                Task(priority: .high) {
+                    async let operation = item.incrementCount()
+                    print(await operation)
+                }
             }
         }
-    }
-    func loadImage(name: String) async -> String {
-        try? await Task.sleep(nanoseconds: 3 * 1000000000)
-        return "Name: \(name)"
     }
 }
 
