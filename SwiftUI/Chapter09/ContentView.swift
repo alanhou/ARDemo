@@ -7,16 +7,19 @@
 
 import SwiftUI
 
-actor ItemData {
-    var counter: Int = 0
-    let maximum: Int = 30
+final class Product: Sendable {
+    let name: String
     
-    func incrementCount() -> String {
-        counter += 1
-        return "Value: \(counter)"
+    init(name: String) {
+        self.name = name
     }
-    nonisolated func maximumValue() -> String {
-        return "Maximum Value: \(maximum)"
+}
+actor ItemData {
+    var stock: Int = 100
+    
+    func sellProduct(product: Product, quantity: Int) {
+        stock = stock - quantity
+        print("Stock: \(stock) \(product.name)")
     }
 }
 struct ContentView: View {
@@ -24,8 +27,10 @@ struct ContentView: View {
     
     var body: some View {
         Button("Start Process") {
-            let value = item.maximumValue()
-            print(value)
+            Task(priority: .background) {
+                let product = Product(name: "Lamp")
+                await item.sellProduct(product: product, quantity: 5)
+            }
         }
     }
 }
