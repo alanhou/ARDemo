@@ -20,8 +20,11 @@ struct ContentView: View {
             }
         }
     }
-    @MainActor func loadImage(name: String) async {
-        myText = name
+    func loadImage(name: String) async {
+        await MainActor.run {
+            myText = name
+        }
+        print(name)
     }
 }
 
