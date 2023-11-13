@@ -7,12 +7,8 @@
 
 import SwiftUI
 
-final class Product: Sendable {
-    let name: String
-    
-    init(name: String) {
-        self.name = name
-    }
+struct Product: @unchecked Sendable {
+    let name: NSString
 }
 actor ItemData {
     var stock: Int = 100
