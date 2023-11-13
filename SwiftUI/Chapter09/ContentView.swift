@@ -11,7 +11,14 @@ struct ContentView: View {
     let website = URL(string: "http://alanhou.org/homepage/wp-content/uploads/2019/03/201903251411121.jpg")
     var body: some View {
         VStack {
-            AsyncImage(url: website)
+            AsyncImage(url: website, content: { image in
+                image
+                    .resizable()
+                    .scaledToFit()
+            }, placeholder: {
+                Image(.nopicture)
+            })
+            Spacer()
         }.padding()
     }
 }
