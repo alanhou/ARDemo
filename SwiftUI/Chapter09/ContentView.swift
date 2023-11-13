@@ -7,45 +7,36 @@
 
 import SwiftUI
 
-struct ImageIterator: AsyncIteratorProtocol {
-    let imageList: [String]
-    var current = 0
-    
-    mutating func next() async -> String? {
-        guard current < imageList.count else {
-            return nil
-        }
-        try? await Task.sleep(nanoseconds: 3 * 1000000000)
-        let image = imageList[current]
-        current += 1
-        return image
-    }
-}
-
-struct ImageLoader: AsyncSequence {
-    typealias Element = String
-    let imageList: [String]
-    
-    func makeAsyncIterator() -> ImageIterator {
-        return AsyncIterator(imageList: imageList)
-    }
-}
-
 struct ContentView: View {
-    let list = ["image1", "image2", "image3"]
-    
     var body: some View {
         VStack {
           Text("Hello World!")
                 .padding()
         }.onAppear {
             Task(priority: .background) {
-                let loader = ImageLoader(imageList: list)
-                for await image in loader {
-                    print(image)
+                await withTaskGroup(of: String.self) { group in
+                    group.addTask(priority: .background) {
+                        let imageName = await self.loadImage(name: "image1")
+                        return imageName
+                    }
+                    group.addTask(priority: .background) {
+                        let imageName = await self.loadImage(name: "image2")
+                        return imageName
+                    }
+                    group.addTask(priority: .background) {
+                        let imageName = await self.loadImage(name: "image3")
+                        return imageName
+                    }
+                    for await result in group {
+                        print(result)
+                    }
                 }
             }
         }
+    }
+    func loadImage(name: String) async -> String {
+        try? await Task.sleep(nanoseconds: 3 * 1000000000)
+        return "Name: \(name)"
     }
 }
 
