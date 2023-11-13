@@ -7,27 +7,21 @@
 
 import SwiftUI
 
-struct Product: @unchecked Sendable {
-    let name: NSString
-}
-actor ItemData {
-    var stock: Int = 100
-    
-    func sellProduct(product: Product, quantity: Int) {
-        stock = stock - quantity
-        print("Stock: \(stock) \(product.name)")
-    }
-}
 struct ContentView: View {
-    var item: ItemData = ItemData()
+    @State private var myText: String = "Hello, world!"
     
     var body: some View {
-        Button("Start Process") {
+        VStack {
+            Text(myText)
+                .padding()
+        }.onAppear {
             Task(priority: .background) {
-                let product = Product(name: "Lamp")
-                await item.sellProduct(product: product, quantity: 5)
+                await loadImage(name: "image1")
             }
         }
+    }
+    @MainActor func loadImage(name: String) async {
+        myText = name
     }
 }
 
