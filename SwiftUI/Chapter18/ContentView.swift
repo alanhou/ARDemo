@@ -19,10 +19,10 @@ struct ContentView: View {
                     .scaledToFit()
                 Spacer()
                 PhotosPicker(selection: $selected, matching: .images, photoLibrary: .shared()) {
-                    Text("Select a photo")
-                        .padding()
-                        .buttonStyle(.borderedProminent)
-                }
+                    Text("Select a photo")}
+                    .buttonStyle(.borderedProminent)
+                    .photosPickerStyle(.inline)
+                    .frame(height: 300)
                 .onChange(of: selected, initial: false) { old, item in
                     Task(priority: .background) {
                         if let data = try? await item?.loadTransferable(type: Data.self) {
