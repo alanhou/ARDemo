@@ -9,32 +9,41 @@ import SwiftUI
 import PhotosUI
 
 struct ContentView: View {
-    @State private var selected: PhotosPickerItem?
-    @State private var picture: UIImage?
+    @Environment(ApplicationData.self) private var appData
+    
+    let guides = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
     var body: some View {
-        NavigationStack {
             VStack {
-                Image(uiImage: picture ?? UIImage(named: "nopicture")!)
-                    .resizable()
-                    .scaledToFit()
-                Spacer()
-                PhotosPicker(selection: $selected, matching: .images, photoLibrary: .shared()) {
-                    Text("Select a photo")}
-                    .buttonStyle(.borderedProminent)
-                    .photosPickerStyle(.inline)
-                    .frame(height: 300)
-                .onChange(of: selected, initial: false) { old, item in
-                    Task(priority: .background) {
-                        if let data = try? await item?.loadTransferable(type: Data.self) {
-                            picture = UIImage(data: data)
+                ScrollView {
+                    LazyVGrid(columns: guides) {
+                        ForEach(appData.listPictures) { item in
+                            Image(uiImage: item.image)
+                                .resizable()
+                                .scaledToFit()
                         }
                     }
                 }
+                .padding()
+                Spacer()
+                PhotosPicker(selection: Bindable(appData).selected, maxSelectionCount: 4, selectionBehavior: .continuous, matching: .images, photoLibrary: .shared()) {
+                    Text("Select Photos")
+                }
+                .photosPickerStyle(.inline)
+                .photosPickerDisabledCapabilities(.selectionActions)
             }
-        }
+            .onChange(of: appData.selected, initial: false) { old, items in
+                appData.removeDeselectedItems()
+                appData.addSelectedItems()
+            }
     }
 }
 
 #Preview {
     ContentView()
+        .environment(ApplicationData())
 }
