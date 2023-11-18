@@ -9,41 +9,30 @@ import SwiftUI
 import PhotosUI
 
 struct ContentView: View {
-    @Environment(ApplicationData.self) private var appData
+    @State private var path = NavigationPath()
+    @State private var picture: UIImage?
     
-    let guides = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
     
     var body: some View {
+        NavigationStack(path: $path) {
             VStack {
-                ScrollView {
-                    LazyVGrid(columns: guides) {
-                        ForEach(appData.listPictures) { item in
-                            Image(uiImage: item.image)
-                                .resizable()
-                                .scaledToFit()
-                        }
-                    }
-                }
-                .padding()
+                HStack {
+                    Spacer()
+                    NavigationLink("Get Picture", value: "Open Picker")
+                }.navigationDestination(for: String.self, destination: { _ in
+                    ImagePicker(path: $path, picture: $picture)
+                })
+                Image(uiImage: picture ?? UIImage(named: "nopicture")!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    .clipped()
                 Spacer()
-                PhotosPicker(selection: Bindable(appData).selected, maxSelectionCount: 4, selectionBehavior: .continuous, matching: .images, photoLibrary: .shared()) {
-                    Text("Select Photos")
-                }
-                .photosPickerStyle(.inline)
-                .photosPickerDisabledCapabilities(.selectionActions)
-            }
-            .onChange(of: appData.selected, initial: false) { old, items in
-                appData.removeDeselectedItems()
-                appData.addSelectedItems()
-            }
+            }.padding()
+        }.statusBarHidden()
     }
 }
 
 #Preview {
     ContentView()
-        .environment(ApplicationData())
 }
