@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct ContentView: View {
-    @Environment(ApplicatonData.self) private var appData
+    @Environment(ApplicationData.self) private var appData
     
     var body: some View {
         NavigationStack(path: Bindable(appData).path) {
@@ -34,5 +34,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(ApplicatonData())
+        .environment(ApplicationData())
 }
