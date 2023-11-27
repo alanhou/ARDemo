@@ -26,4 +26,15 @@ class ViewData {
         cameraView = CustomPreview()
         viewData = ViewData()
     }
+    
+    func getAuthorization() async {
+        let granted = await AVCaptureDevice.requestAccess(for: .video)
+        await MainActor.run {
+            if granted {
+                self.prepareCamera()
+            } else {
+                print("Not Authorized")
+            }
+        }
+    }
 }
