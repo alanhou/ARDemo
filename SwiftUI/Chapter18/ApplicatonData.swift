@@ -37,4 +37,32 @@ class ViewData {
             }
         }
     }
+    
+    func prepareCamera() {
+        viewData.captureSession = AVCaptureSession()
+        viewData.captureDevice = AVCaptureDevice.default(for: AVMediaType.video)
+        
+        if let _ = try? viewData.captureDevice?.lockForConfiguration() {
+            viewData.captureDevice?.isSubjectAreaChangeMonitoringEnabled = true
+            viewData.captureDevice?.unlockForConfiguration()
+        }
+        if let device = viewData.captureDevice {
+            if let input = try? AVCaptureDeviceInput(device: device) {
+                viewData.captureSession?.addInput(input)
+                
+                viewData.stillImage = AVCapturePhotoOutput()
+                if viewData.stillImage != nil {
+                    viewData.captureSession?.addOutput(viewData.stillImage!)
+                    if let max = viewData.captureDevice?.activeFormat.supportedMaxPhotoDimensions.last {
+                        viewData.stillImage?.maxPhotoDimensions = max
+                    }
+                }
+                showCamera()
+            } else {
+                print("Not Authorized")
+            }
+        } else {
+            print("Not Authorized")
+        }
+    }
 }
