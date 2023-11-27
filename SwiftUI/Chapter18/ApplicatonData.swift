@@ -65,4 +65,21 @@ class ViewData {
             print("Not Authorized")
         }
     }
+    
+    func showCamera() {
+        let previewLayer = cameraView.view.layer as? AVCaptureVideoPreviewLayer
+        previewLayer?.session = viewData.captureSession
+        
+        if let device = viewData.captureDevice, let preview = previewLayer {
+            viewData.rotationCoordinator = AVCaptureDevice.RotationCoordinator(device: device, previewLayer: preview)
+            preview.connection?.videoRotationAngle = viewData.rotationCoordinator!.videoRotationAngleForHorizonLevelCapture
+            
+            viewData.previewObservation = viewData.rotationCoordinator!.observe(\.videoRotationAngleForHorizonLevelPreview, changeHandler: { old, value in
+                preview.connection?.videoRotationAngle = self.viewData.rotationCoordinator!.videoRotationAngleForHorizonLevelPreview
+            })
+        }
+        Task(priority: .background) {
+            viewData.captureSession?.startRunning()
+        }
+    }
 }
