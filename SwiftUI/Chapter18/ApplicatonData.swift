@@ -90,4 +90,27 @@ class ViewData {
         }
         viewData.stillImage?.capturePhoto(with: settings, delegate: self)
     }
+    
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        let scale = scene?.screen.scale ?? 1
+        let orientationAngle = viewData.rotationCoordinator!.videoRotationAngleForHorizonLevelCapture
+        var imageOrientation: UIImage.Orientation!
+        switch orientationAngle {
+        case 90.0:
+            imageOrientation = .right
+        case 270.0:
+            imageOrientation = .left
+        case 0.0:
+            imageOrientation = .up
+        case 180.0:
+            imageOrientation = .down
+        default:
+            imageOrientation = .right
+        }
+        if let imageData = photo.cgImageRepresentation() {
+            picture = UIImage(cgImage: imageData, scale: scale, orientation: imageOrientation)
+            path = NavigationPath()
+        }
+    }
 }
