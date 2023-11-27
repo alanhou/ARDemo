@@ -82,4 +82,12 @@ class ViewData {
             viewData.captureSession?.startRunning()
         }
     }
+    
+    func takePicture() {
+        let settings = AVCapturePhotoSettings()
+        if let max = viewData.captureDevice?.activeFormat.supportedMaxPhotoDimensions.last {
+            settings.maxPhotoDimensions = max
+        }
+        viewData.stillImage?.capturePhoto(with: settings, delegate: self)
+    }
 }
