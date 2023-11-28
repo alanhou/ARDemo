@@ -14,6 +14,9 @@ struct ContentView: View {
     var body: some View {
         if appData.player != nil {
             VideoPlayer(player: appData.player)
+                .onAppear {
+                    appData.player.play()
+                }
                 .ignoresSafeArea()
         } else {
             Text("Video not available")
