@@ -9,17 +9,17 @@ import SwiftUI
 import AVKit
 
 struct ContentView: View {
-    @Environment(ApplicationData.self) private var appData
+    @State private var selectedColor: Color = .white
     
     var body: some View {
-        ZStack {
-            appData.customVideoView
-                .ignoresSafeArea()
-        }
+        VStack {
+            ColorPicker("Select a Color", selection: $selectedColor)
+                .padding()
+            Spacer()
+        }.background(selectedColor)
     }
 }
 
 #Preview {
     ContentView()
-        .environment(ApplicationData())
 }
