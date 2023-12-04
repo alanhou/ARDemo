@@ -41,6 +41,9 @@ class ViewData: NSObject {
                 self.progress = CGFloat(position)
             }
         })
+        Task(priority: .background) {
+            await rewindVideo()
+        }
     }
     func playVideo() {
         if viewData.playerItem?.status == .readyToPlay {
