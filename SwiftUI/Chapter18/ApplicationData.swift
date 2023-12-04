@@ -13,18 +13,11 @@ class ViewData: NSObject {
     var playerItem: AVPlayerItem?
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
-    var playerObservation: NSKeyValueObservation?
-    
-    func setObserver() {
-        playerObservation = playerItem?.observe(\.status, options: .new, changeHandler: { item, value in
-            if item.status == .readyToPlay {
-                self.player?.play()
-            }
-        })
-    }
 }
 
 @Observable class ApplicationData {
+    var playing: Bool = false
+    var progress: CGFloat = 0
     @ObservationIgnored var customVideoView: PlayerView!
     @ObservationIgnored var viewData: ViewData
     
@@ -40,6 +33,24 @@ class ViewData: NSObject {
         
         viewData.playerLayer = customVideoView.view.layer as? AVPlayerLayer
         viewData.playerLayer?.player = viewData.player
-        viewData.setObserver()
+       
+        let interval = CMTime(value: 1, timescale: 2)
+        viewData.player?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { time in
+            if let duration = self.viewData.playerItem?.duration {
+                let position = time.seconds / duration.seconds
+                self.progress = CGFloat(position)
+            }
+        })
+    }
+    func playVideo() {
+        if viewData.playerItem?.status == .readyToPlay {
+            if playing {
+                viewData.player?.pause()
+                playing = false
+            } else {
+                viewData.player?.play()
+                playing = true
+            }
+        }
     }
 }
