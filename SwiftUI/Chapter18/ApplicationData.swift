@@ -10,9 +10,19 @@ import Observation
 import AVFoundation
 
 class ViewData: NSObject {
-    var playerItem: AVPlayerItem?
-    var player: AVPlayer?
+    var playerItem1: AVPlayerItem!
+    var playerItem2: AVPlayerItem!
+    var player: AVQueuePlayer!
     var playerLayer: AVPlayerLayer?
+    var playerObservation: NSKeyValueObservation?
+    
+    func setObserver() {
+        playerObservation = playerItem1.observe(\.status, options: .new, changeHandler: { item, value in
+            if item.status == .readyToPlay {
+                self.player.play()
+            }
+        })
+    }
 }
 
 @Observable class ApplicationData {
@@ -26,46 +36,18 @@ class ViewData: NSObject {
         viewData = ViewData()
         
         let bundle = Bundle.main
-        let videoURL = bundle.url(forResource: "videotrees", withExtension: "mp4")
-        let asset = AVURLAsset(url: videoURL!)
-        viewData.playerItem = AVPlayerItem(asset: asset)
-        viewData.player = AVPlayer(playerItem: viewData.playerItem)
+        let videoURL1 = bundle.url(forResource: "videotrees", withExtension: "mp4")
+        let videoURL2 = bundle.url(forResource: "videobeaches", withExtension: "mp4")
+        
+        let asset1 = AVURLAsset(url: videoURL1!)
+        let asset2 = AVURLAsset(url: videoURL2!)
+        viewData.playerItem1 = AVPlayerItem(asset: asset1)
+        viewData.playerItem2 = AVPlayerItem(asset: asset2)
+        viewData.player = AVQueuePlayer(items: [viewData.playerItem1, viewData.playerItem2])
         
         viewData.playerLayer = customVideoView.view.layer as? AVPlayerLayer
         viewData.playerLayer?.player = viewData.player
        
-        let interval = CMTime(value: 1, timescale: 2)
-        viewData.player?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { time in
-            if let duration = self.viewData.playerItem?.duration {
-                let position = time.seconds / duration.seconds
-                self.progress = CGFloat(position)
-            }
-        })
-        Task(priority: .background) {
-            await rewindVideo()
-        }
-    }
-    func playVideo() {
-        if viewData.playerItem?.status == .readyToPlay {
-            if playing {
-                viewData.player?.pause()
-                playing = false
-            } else {
-                viewData.player?.play()
-                playing = true
-            }
-        }
-    }
-    func rewindVideo() async {
-        let center = NotificationCenter.default
-        let name = NSNotification.Name.AVPlayerItemDidPlayToEndTime
-        for await _ in center.notifications(named: name, object: nil) {
-            if let finished = await viewData.playerItem?.seek(to: CMTime.zero), finished {
-                await MainActor.run {
-                    playing = false
-                    progress = 0
-                }
-            }
-        }
+        viewData.setObserver()
     }
 }
