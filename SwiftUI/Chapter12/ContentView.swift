@@ -7,8 +7,22 @@
 
 import SwiftUI
 
+enum PressingState {
+    case active
+    case inactive
+    
+    var isActive: Bool {
+        switch self {
+        case .active:
+            return true
+        case .inactive:
+            return false
+        }
+    }
+}
+
 struct ContentView: View {
-    @GestureState private var pressing: Bool = false
+    @GestureState private var pressingState = PressingState.inactive
     @State private var expand: Bool = false
     
     var body: some View {
@@ -16,11 +30,11 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 160, height: 200)
-            .opacity(pressing ? 0 : 1)
+            .opacity(pressingState.isActive ? 0 : 1)
             .gesture(
                 LongPressGesture(minimumDuration: 1)
-                    .updating($pressing) { value, state, transaction in
-                        state = value
+                    .updating($pressingState) { value, state, transaction in
+                        state = value ? .active : .inactive
                         transaction.animation = Animation.easeInOut(duration: 1.5)
                     }
                     .onEnded { value in
