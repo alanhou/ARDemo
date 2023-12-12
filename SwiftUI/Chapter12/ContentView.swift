@@ -7,43 +7,24 @@
 
 import SwiftUI
 
-enum PressingState {
-    case active
-    case inactive
-    
-    var isActive: Bool {
-        switch self {
-        case .active:
-            return true
-        case .inactive:
-            return false
-        }
-    }
-}
-
 struct ContentView: View {
-    @GestureState private var pressingState = PressingState.inactive
-    @State private var expand: Bool = false
+    @GestureState private var magnification: CGFloat = 1
+    @State private var zoom: CGFloat = 1
     
     var body: some View {
         Image(.spot1)
             .resizable()
             .scaledToFit()
             .frame(width: 160, height: 200)
-            .opacity(pressingState.isActive ? 0 : 1)
-            .gesture(
-                LongPressGesture(minimumDuration: 1)
-                    .updating($pressingState) { value, state, transaction in
-                        state = value ? .active : .inactive
-                        transaction.animation = Animation.easeInOut(duration: 1.5)
-                    }
-                    .onEnded { value in
-                        expand = true
-                    }
+            .scaleEffect(zoom * magnification)
+            .gesture(MagnificationGesture()
+                .updating($magnification) { value, state, transaction in
+                    state = value
+                }
+                .onEnded { value in
+                    zoom = zoom * value
+                }
             )
-            .sheet(isPresented: $expand) {
-                ShowImage()
-            }
     }
 }
 
