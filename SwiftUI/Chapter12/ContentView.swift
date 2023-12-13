@@ -16,15 +16,23 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 160, height: 200)
-            .scaleEffect(zoom * magnification)
+            .scaleEffect(getCurrentZoom(magnification: magnification))
             .gesture(MagnificationGesture()
                 .updating($magnification) { value, state, transaction in
                     state = value
                 }
                 .onEnded { value in
-                    zoom = zoom * value
+                    zoom = getCurrentZoom(magnification: value)
                 }
             )
+    }
+    func getCurrentZoom(magnification: CGFloat) -> CGFloat {
+        let minZoom: CGFloat = 1
+        let maxZoom: CGFloat = 2
+        
+        var current = zoom * magnification
+        current = max(min(current, maxZoom), minZoom)
+        return current
     }
 }
 
