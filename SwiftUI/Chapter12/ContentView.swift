@@ -14,7 +14,10 @@ struct ContentView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 300, height: 400)
-                .draggable(Image(.husky))
+                .draggable(Image(.husky), preview: {
+                    Image(systemName: "scope")
+                        .font(.system(size: 50))
+                })
             Spacer()
         }
     }
