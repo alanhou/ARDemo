@@ -8,15 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var picture: Image = Image(.nopicture)
     var body: some View {
         VStack {
-            Image(.husky)
+            picture
                 .resizable()
                 .scaledToFit()
-                .frame(width: 300, height: 400)
-                .draggable(Image(.husky), preview: {
-                    Image(systemName: "scope")
-                        .font(.system(size: 50))
+                .frame(minWidth: 0, maxWidth: .infinity)
+                .frame(height: 400)
+                .dropDestination(for: Image.self, action: { elements, location in
+                    if let image = elements.first {
+                        picture = image
+                        return true
+                    }
+                    return false
                 })
             Spacer()
         }
