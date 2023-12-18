@@ -9,14 +9,16 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var title: String = "Default Title"
+    @State private var isValid: Bool = true
     var body: some View {
         VStack {
             Text(title)
                 .padding(10)
             Button(action: {
-                title = "My New Title"
+                isValid.toggle()
+                title = isValid ? "Valid" : "Invalid"
             }, label: {
-                Text("Change Title")
+                Text("Change Validation")
             })
             Spacer()
         }.padding()
