@@ -7,27 +7,26 @@
 
 import SwiftUI
 
-struct ImageRepresentation: Transferable {
-    let name: String
-    let image: UIImage
-    
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(exportedContentType: .png, exporting: { value in
-            return value.image.pngData()!
-        })
-    }
-}
 struct ContentView: View {
-    @State private var picture: UIImage = UIImage(named: "nopicture")!
+    @Environment(ApplicationData.self) private var appData
+    @State private var currentPicture: UIImage = UIImage(named: "nopicture")!
     var body: some View {
         VStack {
-            Image(uiImage: picture)
+            HStack(spacing: 10) {
+                ForEach(appData.listPictures) { picture in
+                    Image(uiImage: UIImage(data: picture.image) ?? UIImage(named: "nopicture")!)
+                        .resizable()
+                        .frame(width: 80, height: 100)
+                        .draggable(picture)
+                }
+            }.frame(height: 120)
+            Image(uiImage: currentPicture)
                 .resizable()
                 .scaledToFit()
-                .draggable(ImageRepresentation(name: "My Picture", image: picture))
-                .dropDestination(for: Data.self, action: { elements, location in
-                    if let data = elements.first, let image = UIImage(data: data) {
-                        picture = image
+                .dropDestination(for: PictureRepresentation.self, action: { elements, location in
+                    if let picture = elements.first {
+                        currentPicture = UIImage(data: picture.image) ?? UIImage(named: "nopicture")!
+                        appData.listPictures.removeAll(where: { $0.id == picture.id })
                         return true
                     }
                     return false
@@ -38,5 +37,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView().environment(ApplicationData())
 }
