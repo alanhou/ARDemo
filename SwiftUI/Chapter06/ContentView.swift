@@ -9,16 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var title: String = "Default Title"
-    @State private var isValid: Bool = true
+    @State private var titleInput: String = ""
     var body: some View {
         VStack {
             Text(title)
                 .padding(10)
+            TextField("Insert Title", text: $titleInput)
+                .textFieldStyle(.roundedBorder)
             Button(action: {
-                isValid.toggle()
-                title = isValid ? "Valid" : "Invalid"
+                title = titleInput
+                titleInput = ""
             }, label: {
-                Text("Change Validation")
+                Text("Change Title")
             })
             Spacer()
         }.padding()
