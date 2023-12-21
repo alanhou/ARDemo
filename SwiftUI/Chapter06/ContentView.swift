@@ -12,28 +12,18 @@ struct ContentView: View {
     @State private var titleInput: String = ""
     var body: some View {
         VStack {
-            HeaderView(title: title, titleInput: $titleInput)
+            Text(_title.wrappedValue)
+                .padding(10)
+            TextField("Inserted Title", text: _titleInput.projectedValue)
+                .textFieldStyle(.roundedBorder)
             Button(action: {
-                title = titleInput
-                titleInput = ""
+                _title.wrappedValue = _titleInput.wrappedValue
+                _titleInput.wrappedValue = ""
             }, label: {
                 Text("Change Title")
             })
             Spacer()
         }.padding()
-    }
-}
-
-struct HeaderView: View {
-    var title: String
-    @Binding var titleInput: String
-    var body: some View {
-        VStack {
-            Text(title)
-                .padding(10)
-            TextField("Insert Title", text: $titleInput)
-                .textFieldStyle(.roundedBorder)
-        }
     }
 }
 
