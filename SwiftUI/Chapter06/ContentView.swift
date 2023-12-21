@@ -12,10 +12,7 @@ struct ContentView: View {
     @State private var titleInput: String = ""
     var body: some View {
         VStack {
-            Text(title)
-                .padding(10)
-            TextField("Insert Title", text: $titleInput)
-                .textFieldStyle(.roundedBorder)
+            HeaderView(title: title, titleInput: $titleInput)
             Button(action: {
                 title = titleInput
                 titleInput = ""
@@ -24,6 +21,19 @@ struct ContentView: View {
             })
             Spacer()
         }.padding()
+    }
+}
+
+struct HeaderView: View {
+    var title: String
+    @Binding var titleInput: String
+    var body: some View {
+        VStack {
+            Text(title)
+                .padding(10)
+            TextField("Insert Title", text: $titleInput)
+                .textFieldStyle(.roundedBorder)
+        }
     }
 }
 
