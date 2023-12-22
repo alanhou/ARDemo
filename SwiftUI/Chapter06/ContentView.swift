@@ -53,15 +53,5 @@ struct HeaderView: View {
 }
 
 #Preview("Header") {
-    let constantTitle = Binding<String>(
-        get: { return "My Preview Title" },
-        set: { value in
-            print(value)
-        })
-    let constantInput = Binding<String>(
-        get: { return "" },
-        set: { value in
-            print(value)
-        })
-    return HeaderView(title: constantTitle, titleInput: constantInput)
+    HeaderView(title: .constant("My Preview Title"), titleInput: .constant(""))
 }
