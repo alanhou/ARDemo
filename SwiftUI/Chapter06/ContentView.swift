@@ -11,23 +11,40 @@ struct ContentView: View {
     @State private var title: String = "Default Title"
     @State private var titleInput: String = ""
     
-    init() {
-        _titleInput = State(initialValue: "Hello World")
-    }
     var body: some View {
         VStack {
-            Text(_title.wrappedValue)
-                .padding(10)
-            TextField("Inserted Title", text: _titleInput.projectedValue)
-                .textFieldStyle(.roundedBorder)
+            HeaderView(title: $title, titleInput: $titleInput)
             Button(action: {
-                _title.wrappedValue = _titleInput.wrappedValue
-                _titleInput.wrappedValue = ""
+                title = titleInput
+                titleInput = ""
             }, label: {
                 Text("Change Title")
             })
             Spacer()
         }.padding()
+    }
+}
+
+struct HeaderView: View {
+    @Binding var title: String
+    @Binding var titleInput: String
+    let counter: Int
+    
+    init(title: Binding<String>, titleInput: Binding<String>) {
+        _title = title
+        _titleInput = titleInput
+        
+        let sentence = _title.wrappedValue
+        counter = sentence.count
+    }
+    
+    var body: some View {
+        VStack {
+            Text("\(title) (\(counter))")
+                .padding(10)
+            TextField("Inserted Title", text: $titleInput)
+                .textFieldStyle(.roundedBorder)
+        }
     }
 }
 
