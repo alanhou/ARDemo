@@ -15,9 +15,7 @@ struct ContentView: View {
             Text("Default Title")
                 .padding()
                 .background(colorActive ? Color.green : Color.clear)
-            Button("Change Color") {
-                changeColor()
-            }
+            Button("Change Color", action: changeColor)
             Spacer()
         }.padding()
     }
