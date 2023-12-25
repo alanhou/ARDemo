@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showInfo = false
+    @State private var color = Color.clear
+    @State private var buttonDisabled = false
     
     var body: some View {
         VStack(spacing: 10) {
-            Button("Show Information") {
-                showInfo.toggle()
-            }.padding()
-            if showInfo {
-                Text("This is the information")
+            Text("Default Title")
+                .padding()
+                .background(color)
+            Button("Change Color") {
+                color = Color.green
+                buttonDisabled = true
             }
+            .disabled(buttonDisabled)
             Spacer()
-        }
+        }.padding()
     }
 }
 
