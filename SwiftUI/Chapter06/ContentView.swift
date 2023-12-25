@@ -16,10 +16,14 @@ struct ContentView: View {
                 .padding()
                 .background(colorActive ? Color.green : Color.clear)
             Button("Change Color") {
-                colorActive.toggle()
+                changeColor()
             }
             Spacer()
         }.padding()
+    }
+    
+    func changeColor() {
+        colorActive.toggle()
     }
 }
 
