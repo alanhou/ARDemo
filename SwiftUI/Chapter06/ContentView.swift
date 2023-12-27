@@ -11,8 +11,8 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack {
-                Button("Cancel") {
-                    print("Cancel Action")
+                Button("Delete", role: .destructive) {
+                    print("Delete Action")
                 }.buttonStyle(.bordered)
                 Spacer()
                 Button("Send") {
