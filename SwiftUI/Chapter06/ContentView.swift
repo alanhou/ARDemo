@@ -10,15 +10,18 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack(spacing: 10) {
-            HStack {
-                Button("Delete", role: .destructive) {
-                    print("Delete Action")
-                }.buttonStyle(.bordered)
-                Spacer()
-                Button("Send") {
-                    print("Send Information")
-                }.buttonStyle(.borderedProminent)
-            }
+            Button(action: {
+                print("Send information")
+            }, label: {
+                HStack {
+                    Image(systemName: "mail")
+                        .imageScale(.large)
+                    Text("Send")
+                }
+            })
+            .buttonStyle(.borderedProminent)
+            .font(.largeTitle)
+            .controlSize(.large)
             Spacer()
         }.padding()
     }
