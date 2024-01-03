@@ -7,34 +7,43 @@
 
 import SwiftUI
 
+enum FocusName: Hashable {
+    case name
+    case surname
+}
+
 struct ContentView: View {
-    @State private var title: String = "Default Title"
-    @State private var titleInput: String = ""
+    @Environment(\.colorScheme) var colorScheme
+    @FocusState var focusName: FocusName?
+    @State private var title: String = "Default Name"
+    @State private var nameInput: String = ""
+    @State private var surnameInput: String = ""
     
     var body: some View {
-        VStack(spacing: 15) {
+        let color: Color = colorScheme == .dark ? .black : .white
+        VStack(spacing: 10) {
             Text(title)
                 .lineLimit(1)
                 .padding()
                 .background(Color.yellow)
-            TextField("Insert Title", text: $titleInput)
+            TextField("Insert Name", text: $nameInput)
                 .textFieldStyle(.roundedBorder)
-                .submitLabel(.continue)
-                .onSubmit {
-                    assignTitle()
-                }
+                .padding(4)
+                .background(focusName == .name ? Color(white: 0.9) : color)
+                .focused($focusName, equals: .name)
+            TextField("Insert Surname", text: $surnameInput)
+                .textFieldStyle(.roundedBorder)
+                .padding(4)
+                .background(focusName == .surname ? Color(white: 0.9) : color)
+                .focused($focusName, equals: .surname)
             HStack {
                 Spacer()
                 Button("Save") {
-                    assignTitle()
+                    title = nameInput + " " + surnameInput
                 }
             }
             Spacer()
         }.padding()
-    }
-    func assignTitle() {
-        title = titleInput
-        titleInput = ""
     }
 }
 
