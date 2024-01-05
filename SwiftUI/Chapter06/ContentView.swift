@@ -47,7 +47,7 @@ struct ContentView: View {
                         focusName = nil
                     }
                 }
-            }
+            }.disabled(nameInput.isEmpty || surnameInput.isEmpty)
             Spacer()
         }.padding()
     }
