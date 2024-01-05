@@ -39,8 +39,13 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 Button("Save") {
-                    title = nameInput + " " + surnameInput
-                    focusName = nil
+                    let tempName = nameInput.trimmingCharacters(in: .whitespaces)
+                    let tempSurname = surnameInput.trimmingCharacters(in: .whitespaces)
+                    
+                    if !tempName.isEmpty && !tempSurname.isEmpty {
+                        title = nameInput + " " + surnameInput
+                        focusName = nil
+                    }
                 }
             }
             Spacer()
