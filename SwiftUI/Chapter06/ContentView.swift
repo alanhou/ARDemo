@@ -13,51 +13,30 @@ enum FocusName: Hashable {
 }
 
 struct ContentView: View {
-    @Environment(\.colorScheme) var colorScheme
-    @FocusState var focusName: FocusName?
     @State private var title: String = "Default Name"
-    @State private var nameInput: String = ""
-    @State private var surnameInput: String = ""
+    @State private var numberInput = ""
     
     var body: some View {
-        let color: Color = colorScheme == .dark ? .black : .white
         VStack(spacing: 10) {
             Text(title)
-                .lineLimit(1)
                 .padding()
                 .background(Color.yellow)
-            TextField("Insert Name", text: $nameInput)
+            TextField("Insert Number", text: $numberInput)
                 .textFieldStyle(.roundedBorder)
                 .padding(4)
-                .background(focusName == .name ? Color(white: 0.9) : color)
-                .focused($focusName, equals: .name)
-                .onChange(of: nameInput, initial: false) { old, value in
-                    if value.count > 10 {
-                        nameInput = String(value.prefix(10))
-                    }
-                }
-            TextField("Insert Surname", text: $surnameInput)
-                .textFieldStyle(.roundedBorder)
-                .padding(4)
-                .background(focusName == .surname ? Color(white: 0.9) : color)
-                .focused($focusName, equals: .surname)
-                .onChange(of: surnameInput, initial: false) { old, value in
-                    if value.count > 15 {
-                        surnameInput = String(value.prefix(15))
+                .keyboardType(.numbersAndPunctuation)
+                .onChange(of: numberInput, initial: false) { old, value in
+                    if !value.isEmpty && Int(value) == nil {
+                        numberInput = old
                     }
                 }
             HStack {
                 Spacer()
                 Button("Save") {
-                    let tempName = nameInput.trimmingCharacters(in: .whitespaces)
-                    let tempSurname = surnameInput.trimmingCharacters(in: .whitespaces)
-                    
-                    if !tempName.isEmpty && !tempSurname.isEmpty {
-                        title = nameInput + " " + surnameInput
-                        focusName = nil
-                    }
+                    title = numberInput
+                    numberInput = ""
                 }
-            }.disabled(nameInput.isEmpty || surnameInput.isEmpty)
+            }
             Spacer()
         }.padding()
     }
