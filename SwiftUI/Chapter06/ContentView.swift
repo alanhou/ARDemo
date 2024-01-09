@@ -7,19 +7,17 @@
 
 import SwiftUI
 
-enum FocusName: Hashable {
-    case name
-    case surname
-}
-
 struct ContentView: View {
-    @State private var text: String = ""
+    @State private var pass: String = ""
     
     var body: some View {
-        TextField("Insert Text", text: $text, axis: .vertical)
-            .textFieldStyle(.roundedBorder)
-            .padding(20)
-            .lineLimit(5)
+        VStack(spacing: 15) {
+            Text(pass)
+                .padding()
+            SecureField("Insert Password", text: $pass)
+                .textFieldStyle(.roundedBorder)
+            Spacer()
+        }.padding()
     }
 }
 
