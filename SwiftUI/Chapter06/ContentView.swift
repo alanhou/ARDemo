@@ -8,16 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var pass: String = ""
+    @State private var text: String = ""
     
     var body: some View {
-        VStack(spacing: 15) {
-            Text(pass)
-                .padding()
-            SecureField("Insert Password", text: $pass)
-                .textFieldStyle(.roundedBorder)
-            Spacer()
-        }.padding()
+        TextEditor(text: $text)
+            .multilineTextAlignment(.leading)
+            .lineSpacing(10)
+            .autocorrectionDisabled(true)
+            .padding(8)
     }
 }
 
