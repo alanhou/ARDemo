@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var text: String = ""
+    @State private var currentState: Bool = true
     
     var body: some View {
-        TextEditor(text: $text)
-            .multilineTextAlignment(.leading)
-            .lineSpacing(10)
-            .autocorrectionDisabled(true)
-            .padding(8)
+        VStack {
+            Toggle(isOn: $currentState, label: {
+                Text(currentState ? "On" : "Off")
+            })
+            Spacer()
+        }.padding()
     }
 }
 
