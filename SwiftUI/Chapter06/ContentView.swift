@@ -12,11 +12,10 @@ struct ContentView: View {
     
     var body: some View {
         HStack {
-            Toggle("", isOn: $currentState)
-                .labelsHidden()
-            Text(currentState ? "On" : "Off")
-                .padding()
-                .background(Color(currentState ? .yellow : .gray))
+            Toggle(isOn: $currentState, label: {
+                Label("Send", systemImage: "mail")
+            })
+            .toggleStyle(.button)
         }.padding()
     }
 }
