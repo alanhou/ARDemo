@@ -11,12 +11,12 @@ struct ContentView: View {
     @State private var currentState: Bool = true
     
     var body: some View {
-        VStack {
-            Toggle(isOn: $currentState, label: {
-                Text(currentState ? "On" : "Off")
-                Text("Enable or Disable")
-            })
-            Spacer()
+        HStack {
+            Toggle("", isOn: $currentState)
+                .labelsHidden()
+            Text(currentState ? "On" : "Off")
+                .padding()
+                .background(Color(currentState ? .yellow : .gray))
         }.padding()
     }
 }
