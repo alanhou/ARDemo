@@ -14,6 +14,7 @@ struct ContentView: View {
         VStack {
             Toggle(isOn: $currentState, label: {
                 Text(currentState ? "On" : "Off")
+                Text("Enable or Disable")
             })
             Spacer()
         }.padding()
