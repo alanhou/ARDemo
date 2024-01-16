@@ -12,8 +12,8 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            ProgressView(value: currentValue, total: 10)
-            Slider(value: $currentValue, in: 0...10)
+            ProgressView()
+                .progressViewStyle(.circular)
             Spacer()
         }.padding()
     }
