@@ -7,32 +7,15 @@
 
 import SwiftUI
 
-struct MyStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        HStack(alignment: .center) {
-            configuration.label
-            Spacer()
-            Image(systemName: "checkmark.rectangle.fill")
-                .font(.largeTitle)
-                .foregroundColor(configuration.isOn ? Color.green : Color.gray)
-                .onTapGesture {
-                    configuration.$isOn.wrappedValue.toggle()
-                }
-        }
-    }
-}
-
 struct ContentView: View {
-    @State private var currentState: Bool = false
+    @State private var currentValue: Float = 5
     
     var body: some View {
         VStack {
-            HStack {
-                Toggle("Enabled", isOn: $currentState)
-                .toggleStyle(MyStyle())
-                Spacer()
-            }.padding()
-        }
+            Text("Current Value: \(currentValue.formatted(.number.precision(.fractionLength(0))))")
+            Slider(value: $currentValue, in: 0...10, step: 1.0)
+            Spacer()
+        }.padding()
     }
 }
 
