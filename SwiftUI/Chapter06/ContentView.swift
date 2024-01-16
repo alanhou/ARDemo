@@ -8,24 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var currentValue: Float = 0
-    @State private var goingUp: Bool = true
+    @State private var setting1: Bool = true
+    @State private var setting2: Bool = true
+    @State private var setting3: Bool = true
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Current Value: \(currentValue.formatted(.number.precision(.fractionLength(0))))")
-                Image(systemName: goingUp ? "arrow.up" : "arrow.down")
-                    .foregroundColor(goingUp ? Color.green : Color.red)
-                Stepper("", onIncrement: {
-                    currentValue += 5
-                    goingUp = true
-                }, onDecrement: {
-                    currentValue -= 5
-                    goingUp = false
-                }).labelsHidden()
+        GroupBox("Settings") {
+            VStack(spacing: 10) {
+                Toggle("Autocorrection", isOn: $setting1)
+                Toggle("Capitalization", isOn: $setting2)
+                Toggle("Editable", isOn: $setting3)
             }
-            Spacer()
         }.padding()
     }
 }
