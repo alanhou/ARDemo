@@ -16,6 +16,10 @@ struct ContentView: View {
    @Bindable var viewData = ViewData()
     var appData = ApplicationData()
     
+    init() {
+        viewData.titleInput = appData.title
+    }
+    
     var body: some View {
         VStack(spacing: 8) {
             Text(appData.title)
