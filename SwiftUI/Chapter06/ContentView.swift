@@ -8,26 +8,27 @@
 import SwiftUI
 import Observation
 
-@Observable class ViewData {
-    var titleInput: String = ""
+struct ContentView: View {
+    @Environment(ApplicationData.self) private var appData
+    
+    var body: some View {
+        MyInputView(appData: appData)
+    }
 }
 
-struct ContentView: View {
-    @Bindable var viewData = ViewData()
-    @Environment(ApplicationData.self) private var appData
+struct MyInputView: View {
+    @Bindable var appData: ApplicationData
     
     var body: some View {
         VStack(spacing: 8) {
             Text(appData.title)
                 .padding(10)
-            TextField("Insert Title", text: $viewData.titleInput)
+            TextField("Insert Title", text: $appData.titleInput)
                 .textFieldStyle(.roundedBorder)
             Button(action: {
-                appData.title = viewData.titleInput
-                viewData.titleInput = ""
-            }, label: {
-                Text("Save")
-            })
+                appData.title = appData.titleInput
+                appData.titleInput = ""
+            }, label: { Text("Save") })
             Spacer()
         }.padding()
     }
