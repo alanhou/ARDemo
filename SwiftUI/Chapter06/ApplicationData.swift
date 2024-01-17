@@ -10,5 +10,4 @@ import Observation
 
 @Observable class ApplicationData {
     var title: String = "Default Title"
-    var titleInput: String = ""
 }
