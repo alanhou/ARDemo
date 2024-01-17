@@ -10,6 +10,7 @@ import Observation
 
 @Observable class ViewData {
     var titleInput: String = ""
+    @ObservationIgnored var counter: Int = 0
 }
 
 struct ContentView: View {
@@ -25,14 +26,13 @@ struct ContentView: View {
             Button(action: {
                 appData.title = viewData.titleInput
                 viewData.titleInput = ""
+                viewData.counter += 1
+                print("Current Counter: \(viewData.counter)")
             }, label: {
                 Text("Save")
             })
             Spacer()
         }.padding()
-            .onAppear {
-                viewData.titleInput = appData.title
-            }
     }
 }
 
