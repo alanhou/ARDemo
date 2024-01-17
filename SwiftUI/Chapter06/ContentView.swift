@@ -10,12 +10,11 @@ import Observation
 
 @Observable class ViewData {
     var titleInput: String = ""
-    @ObservationIgnored var counter: Int = 0
 }
 
 struct ContentView: View {
-   @Bindable var viewData = ViewData()
-    var appData = ApplicationData()
+    @Bindable var viewData = ViewData()
+    @Environment(ApplicationData.self) private var appData
     
     var body: some View {
         VStack(spacing: 8) {
@@ -26,8 +25,6 @@ struct ContentView: View {
             Button(action: {
                 appData.title = viewData.titleInput
                 viewData.titleInput = ""
-                viewData.counter += 1
-                print("Current Counter: \(viewData.counter)")
             }, label: {
                 Text("Save")
             })
@@ -38,4 +35,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(ApplicationData())
 }
