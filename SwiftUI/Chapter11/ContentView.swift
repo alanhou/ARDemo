@@ -8,17 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
+    let lineStyle = StrokeStyle(lineWidth: 15, lineCap: .round, lineJoin: .round, miterLimit: 0, dash: [20], dashPhase: 0)
+    
     var body: some View {
-        HStack {
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(Color.red, lineWidth: 20)
-                .frame(width: 100, height: 100)
-                .padding()
-            RoundedRectangle(cornerRadius: 25)
-                .strokeBorder(Color.red, lineWidth: 20)
-                .frame(width: 100, height: 100)
-                .padding()
-        }
+        RoundedRectangle(cornerRadius: 25)
+            .stroke(Color.red, style: lineStyle)
+            .frame(width: 100, height: 100)
     }
 }
 
