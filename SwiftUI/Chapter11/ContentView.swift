@@ -8,12 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
-    let lineStyle = StrokeStyle(lineWidth: 15, lineCap: .round, lineJoin: .round, miterLimit: 0, dash: [20], dashPhase: 0)
+    @State private var setActive: Bool = true
     
     var body: some View {
-        RoundedRectangle(cornerRadius: 25)
-            .stroke(Color.red, style: lineStyle)
-            .frame(width: 100, height: 100)
+        VStack {
+            Button(action: {
+                setActive.toggle()
+            }, label: {
+                Text(setActive ? "Active" : "Inactive")
+                    .font(.title)
+                    .foregroundColor(Color.white)
+                    .padding(.horizontal, 30)
+                    .padding(.vertical, 10)
+            })
+            .background(
+                Capsule()
+                    .fill(setActive ? Color.green : Color.red)
+            )
+            Spacer()
+        }.padding()
     }
 }
 
