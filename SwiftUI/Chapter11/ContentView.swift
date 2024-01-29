@@ -21,10 +21,7 @@ struct ContentView: View {
                     .padding(.horizontal, 30)
                     .padding(.vertical, 10)
             })
-            .background(
-                Capsule()
-                    .fill(setActive ? Color.green : Color.red)
-            )
+            .background(setActive ? Color.green : Color.red, in: Capsule())
             Spacer()
         }.padding()
     }
