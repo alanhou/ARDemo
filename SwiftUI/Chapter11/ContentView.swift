@@ -9,9 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Rectangle()
-            .fill(.image(Image(.pattern)))
-            .frame(width: 100, height: 100)
+        Path { path in
+            path.move(to: CGPoint(x: 100, y: 150))
+            path.addLine(to: CGPoint(x: 200, y: 150))
+            path.addLine(to: CGPoint(x: 100, y: 250))
+            path.closeSubpath()
+        }.stroke(Color.blue, lineWidth: 5)
     }
 }
 
