@@ -9,12 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Path { path in
-            path.move(to: CGPoint(x: 50, y: 50))
-            path.addQuadCurve(to: CGPoint(x: 50, y: 200), control: CGPoint(x: 100, y: 125))
-            path.move(to: CGPoint(x: 250, y: 50))
-            path.addCurve(to: CGPoint(x: 250, y: 200), control1: CGPoint(x: 200, y: 125), control2: CGPoint(x: 300, y: 125))
-        }.stroke(Color.blue, lineWidth: 5)
+        GeometryReader { geometry in
+            Path { path in
+                let width = geometry.size.width / 2
+                let height = width
+                let posX = (geometry.size.width - width) / 2
+                let posY = (geometry.size.height - height) / 2
+                path.move(to: CGPoint(x: posX, y: posY))
+                path.addLine(to: CGPoint(x: posX + width, y: posY))
+                path.addLine(to: CGPoint(x: posX, y: posY + height))
+                path.closeSubpath()
+            }.stroke(Color.blue, lineWidth: 5)
+        }
     }
 }
 
