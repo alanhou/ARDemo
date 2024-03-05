@@ -10,25 +10,11 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            ScrollView(.horizontal, showsIndicators: true) {
-                HStack {
-                    Triangle()
-                        .fill(Color.blue)
-                        .frame(width: 120, height: 50)
-                    Triangle()
-                        .fill(Color.green)
-                        .frame(width: 120, height: 100)
-                    Triangle()
-                        .fill(Color.yellow)
-                        .frame(width: 120, height: 80)
-                    Triangle()
-                        .fill(Color.red)
-                        .frame(width: 50, height: 50)
-                }
-            }.padding()
-            Spacer()
-        }
+        Image(.spot1)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 150, height: 200)
+            .offset(CGSize(width: 75, height: 0))
     }
 }
 
