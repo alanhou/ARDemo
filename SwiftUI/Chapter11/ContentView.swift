@@ -14,7 +14,8 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 150, height: 200)
-            .offset(CGSize(width: 75, height: 0))
+            .scaleEffect(CGSize(width: 0.9, height: 0.9))
+            .rotation3DEffect(.degrees(30), axis: (x: 0.0, y: 1.0, z: 0.0))
     }
 }
 
